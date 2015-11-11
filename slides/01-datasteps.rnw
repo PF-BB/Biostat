@@ -1,4 +1,4 @@
-\documentclass[t]{beamer}
+\documentclass[t,table]{beamer}
 \usepackage{../tex/slides}
 \setbeameroption{hide notes} 
 
@@ -17,13 +17,16 @@
 <<setup, include=FALSE, cache=FALSE>>=
 library(knitr)
 render_sweave()
-opts_chunk$set(size = "small", fig.path = 'figures/01-', dev = "cairo_pdf", 
+opts_chunk$set(size = "small", fig.path = 'figs/01-', dev = "cairo_pdf", 
                dev.args = list(family = "Bitstream Vera Sans"),
                fig.width = 5, fig.height = 5, 
                out.width = ".6\\linewidth", fig.align = "center",
                message=FALSE)
 opts_knit$set(progress = FALSE, verbose = FALSE) 
 options(digits = 2, width = 70)
+library(latticeExtra)
+lattice.options(default.args = list(axis = axis.grid))
+trellis.par.set(ggplot2like(lwd = 2.5))
 @
 
 % ------------------------------------------------------------------- Slide --
@@ -37,7 +40,7 @@ options(digits = 2, width = 70)
   \tableofcontents
 \end{frame}      
 
-\section{Gestion des données avec R}
+\section{Éléments de contexte}
 % ------------------------------------------------------------------- Slide --
 \begin{frame}{Le langage R}
 
@@ -67,16 +70,27 @@ les interprète et renvoit un résultat ("Read-Eval-Print-Loop", REPL).
 
 \end{frame}
 
+% ------------------------------------------------------------------- Slide --
+\begin{frame}{Approche interactive de l'analyse de données}
 
-\note{%
-REPL = read-eval-print-loop.
-}
+\bigskip
 
-\section{Les variables sous R}
+\centerline{\includegraphics[width=.6\textwidth]{./figs/repl_stats.pdf}}  
+  
+\end{frame}
+
+% ------------------------------------------------------------------- Slide --
+\begin{frame}{Ressources}
+
+  
+\end{frame}
+
+
+\section{Gestion des données avec R}
 % ------------------------------------------------------------------- Slide --
 \begin{frame}[fragile]{Exemple de variable}
 
-On parlera de variables et de commandes pour distinguer les objets dans
+On parlera de \textbf{variables} et de \textbf{commandes} pour distinguer les objets dans
 lesquels on stocke des données et les fonctions permettant d'opérer sur
 ces données, respectivement.
 \medskip
@@ -123,7 +137,6 @@ Sous \R, on appelle ce type de structure de données un "data frame".
 
 La commande \texttt{data()} permet d'importer des données disponibles dans
 les différents packages \R. 
-\medskip
 
 Généralement, les données sont immédiatement
 disponibles sous forme de data frame et la commande \texttt{ls()} permet de
@@ -156,6 +169,7 @@ head(ToothGrowth)
 % ------------------------------------------------------------------- Slide --
 \begin{frame}[fragile]{}
 
+\bigskip
 Une aide en ligne (\texttt{help()}) est généralement disponible pour les
 jeux de données internes.
   
@@ -198,6 +212,286 @@ ainsi que le nom des variables, leur mode de représentation et un aperçu des
 \centerline{\includegraphics[width=.8\textwidth]{./figs/toothgrowth.pdf}}  
   
 \end{frame}  
+
+% ------------------------------------------------------------------- Slide --
+\begin{frame}[fragile]{Sélection indexée d'observations}
+
+\textbf{Notation :} \texttt{[i,j]}, \texttt{i}\ieme ligne et \texttt{j}\ieme colonne.
+
+<<>>=
+ToothGrowth[1,]
+ToothGrowth[c(1,3),]
+ToothGrowth[1:5, 2]
+ToothGrowth[1:5, "supp"]
+@   
+
+\end{frame}
+
+% ------------------------------------------------------------------- Slide --
+\begin{frame}[fragile]{Sélection critériée d'observations}
+
+Principe identique à la sélection indexée, sauf que les observations sont sélectionnés à partir de filtres logiques. 
+\medskip
+
+\textbf{Notation :} \& (et), | (ou), ! (négation), \%in\% (ou ensembliste).
+
+<<>>=
+ToothGrowth[ToothGrowth$supp == "VC" & 
+            ToothGrowth$dose == 0.5, 
+            "len"]
+ToothGrowth$supp[ToothGrowth$len < 11]
+@   
+
+\end{frame}
+
+% ------------------------------------------------------------------- Slide --
+\begin{frame}[fragile]{Sélection critériée d'observations}
+La commande \texttt{subset()} est plus souple d'utilisation, et elle renvoie un data frame (et non un vecteur).
+
+<<>>=
+subset(ToothGrowth, supp == "VC" & dose == 0.5, len)
+@ 
+  
+\end{frame}
+
+% ------------------------------------------------------------------- Slide --
+\begin{frame}[fragile]{Résumé numérique}
+Pour obtenir un résumé numérique d'une variable (ou d'un data frame), on
+  utilise \texttt{summary()}.
+
+<<>>=
+summary(ToothGrowth$len)
+summary(ToothGrowth$supp)
+summary(ToothGrowth)
+@   
+
+\end{frame}
+
+% ------------------------------------------------------------------- Slide --
+\begin{frame}[fragile]{Résumé numérique}
+La variable \texttt{dose} peut être considérée comme numérique ou catégorielle.
+Dans le 2\ieme cas, il est nécessaire de la convertir en \texttt{factor()}.
+
+<<>>=
+head(ToothGrowth$dose)
+unique(ToothGrowth$dose)
+head(factor(ToothGrowth$dose))
+@ 
+\indexfoo{unique}\indexfoo{head}  
+
+\end{frame}
+
+
+
+\section{Représentations graphiques}
+
+
+% ------------------------------------------------------------------- Slide --
+\begin{frame}[fragile]{}
+
+\bigskip
+
+\centerline{\includegraphics[width=.8\textwidth]{./figs/dataviz.png}}  
+\vfill
+
+{\small\url{http://www.visual-literacy.org/periodic_table/periodic_table.html}}
+\end{frame}  
+
+% ------------------------------------------------------------------- Slide --
+\begin{frame}[fragile]{Systèmes graphiques sous \R}
+
+\R dispose de deux principaux système graphiques -- base et grid \citep{murrell11} -- et de trois interfaces : graphics \citep{becker88}, lattice \citep{sarkar08} et ggplot2 \citep{wickham09}.
+
+\begin{center}
+\begin{tabular}{cc}
+\includegraphics[width=.45\textwidth]{./figs/scatter_base.pdf}  &
+\includegraphics[width=.45\textwidth]{./figs/scatter_ggplot.pdf}
+\end{tabular}
+\end{center}
+
+Le package lattice sera utilisé pour la plupart des illustrations graphiques.
+\end{frame}  
+
+
+% ------------------------------------------------------------------- Slide --
+\begin{frame}[fragile]{Le package lattice}
+
+\begin{center}
+\begin{tabular}{ll}
+histogram() & histogramme (effectif, fréquence, densité)\\
+densityplot() & courbe de densité non-paramétrique\\
+stripplot() & diagramme de dispersion univarié\\
+qqmath() & "quantile plot"\\  
+bwplot() & diagramme en boîte à moustaches\\
+barchart() & diagramme en barres\\
+dotplot() & diagramme de Cleveland
+\end{tabular}
+\end{center}
+
+\begin{itemize}
+\item Graphiques prêts à l'usage pour l'analyse exploratoire et la modélisation, légende automatique, conditionnement, thèmes graphiques
+\item Personnalisation délicate parfois (idem pour graphics et ggplot2)
+\end{itemize}
+  
+\end{frame}  
+
+% ------------------------------------------------------------------- Slide --
+\begin{frame}[fragile]{}
+\bigskip
+
+<<eval = FALSE>>=
+library(lattice)
+if (!require(latticeExtra)) 
+    install.packages("latticeExtra")
+lattice.options(default.args = list(axis = axis.grid))
+trellis.par.set(ggplot2like(lwd = 2.5))
+@   
+
+\medskip
+
+<<echo = FALSE, fig.width = 9, fig.height = 3, out.width = "\\linewidth",>>=
+library(gridExtra)
+p1 <- xyplot(bwt ~ lwt, data = MASS::birthwt, groups = ht, type = c("p", "smooth", "g"), par.settings = simpleTheme(), xlab = "", ylab = "", main = "Thème par défaut")
+p2 <- xyplot(bwt ~ lwt, data = MASS::birthwt, groups = ht, type = c("p", "smooth", "g"), par.settings = custom.theme.2(), xlab = "", ylab = "", main = "custom.theme.2()")
+p3 <- xyplot(bwt ~ lwt, data = MASS::birthwt, groups = ht, type = c("p", "smooth", "g"), par.settings = theEconomist.theme(), xlab = "", ylab = "", main = "theEconomist.theme()")
+grid.arrange(p1, p2, p3, nrow = 1)
+@ 
+\vfill
+
+\begin{quotation}
+  Use excellent graphics, liberally --- Frank E Harrell
+\end{quotation}
+
+\end{frame}  
+
+% ------------------------------------------------------------------- Slide --
+\begin{frame}[fragile]{Fonction de répartition}
+
+<<eval = FALSE>>=
+qqmath(~ len, data = ToothGrowth, dist = qunif)
+@ 
+
+<<echo = FALSE>>=
+qstats <- quantile(ToothGrowth$len)[2:4]
+names(qstats) <- c(0.25,0.50,0.75)
+p <- qqmath(~ len, data = ToothGrowth, dist = qunif, xlab="Fréquence cumulée",
+           panel = function(...) {
+               panel.qqmath(x, ...)
+               for (i in 1:length(qstats))
+                   panel.lines(c(-.5, rep(as.numeric(names(qstats)[i]), 2)),
+                               c(rep(qstats[i], 2), 0), col="darkgrey")
+               panel.text(rep(.05, 3), qstats, paste(as.numeric(names(qstats))*100, "%"),
+                          cex=.8, pos=3, col="darkgrey")
+           })
+print(p)
+@ 
+
+\end{frame}
+
+% ------------------------------------------------------------------- Slide --
+\begin{frame}[fragile]{Histogramme d'effectifs}
+
+<<>>=
+histogram(~ len, data = ToothGrowth, type = "count")
+@ 
+  
+\end{frame}  
+
+
+% ------------------------------------------------------------------- Slide --
+\begin{frame}[fragile]{Histogramme d'effectifs}
+\bigskip
+
+Le paramètre \texttt{breaks=} permet de changer le nombre d'intervalles
+construits (voir aussi \texttt{nint=}). Par défaut, la méthode utilisée est la \textbf{méthode de
+Sturges} \citep{sturges26}. L'ajout d'une loi de densité gaussienne dont
+les paramètres sont estimés à partir de l'échantillon est également
+possible. \medskip
+
+<<echo = FALSE, fig.width = 6, fig.height = 6, out.width = ".5\\linewidth">>=
+p <- list()
+rg <- seq(5, 15, by=5)
+for (i in seq_along(rg))
+  p[[i]] <- histogram(~ len, data=ToothGrowth, breaks=rg[i],
+                       main=paste(rg[i], "intervalles"), par.settings = ggplot2like(),
+                       ylab="", xlab="", type="density", border=NA)
+p[[4]] <- histogram(~ len, data=ToothGrowth, type="density", ylab="", xlab="",
+                     border=NA, par.settings = ggplot2like(),
+                     panel=function(x, ...) {
+                       panel.histogram(x, ...)
+                       panel.mathdensity(dmath=dnorm, col="#BF3030", lwd = 3,
+                                         args=list(mean=mean(x),sd=sd(x)))
+                     },
+                     main=paste("N(", round(mean(ToothGrowth$len),1), ";",
+                       round(sd(ToothGrowth$len),1), ") superposée", sep=""))
+do.call(grid.arrange, p)
+@ 
+
+\end{frame}
+
+
+% ------------------------------------------------------------------- Slide --
+\begin{frame}[fragile]{Histogramme de fréquences relatives}
+
+<<>>=
+histogram(~ len | supp, data = ToothGrowth, 
+          breaks = seq(0, 40, by = 5))
+@ 
+  
+\end{frame}  
+
+
+% ------------------------------------------------------------------- Slide --
+\begin{frame}[fragile]{Courbe de densité}
+
+<<>>=
+library(lattice)
+densityplot(~ len, data = ToothGrowth)
+@ 
+  
+\end{frame}  
+
+% ------------------------------------------------------------------- Slide --
+\begin{frame}[fragile]{Courbe de densité conditionnelle}
+
+<<>>=
+library(lattice)
+densityplot(~ len, data = ToothGrowth, groups = supp, 
+            from = 0, to = 40, auto.key = TRUE)
+@ 
+  
+\end{frame}  
+
+% ------------------------------------------------------------------- Slide --
+\begin{frame}[fragile]{Graphics \emph{versus} Lattice}
+
+\begin{lstlisting}[basicstyle=\scriptsize]
+> plot(density(ToothGrowth$len[ToothGrowth$supp == "OJ"]), 
+       main = "", xlab = "len", las = 1, lwd = 2, col = "coral")
+> lines(density(ToothGrowth$len[ToothGrowth$supp == "VC"]), 
+        lwd = 2, col = "cornflowerblue")
+> ## rug() does not allow to use a grouping factor
+> points(x = ToothGrowth$len[ToothGrowth$supp == "OJ"], 
+         y = runif(n = length(ToothGrowth$len[ToothGrowth$supp == "OJ"]), 
+                   min = -0.001, max = 0.001),
+         col = "coral")
+> points(x = ToothGrowth$len[ToothGrowth$supp == "VC"], 
+         y = runif(n = length(ToothGrowth$len[ToothGrowth$supp == "VC"]), 
+                   min = -0.001, max = 0.001),
+         col = "cornflowerblue")
+> legend("top", levels(ToothGrowth$supp), 
+         col = c("coral", "cornflowerblue"), 
+         lty = 1, bty = "n")
+\end{lstlisting}
+     
+\end{frame}  
+
+
+
+\section{Importation et sauvegarde de données}
+
+
+\section{Mesures d'association}
 
 \section*{Références} 
 % ------------------------------------------------------------------- Slide --
