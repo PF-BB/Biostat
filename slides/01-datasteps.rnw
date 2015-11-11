@@ -1,0 +1,218 @@
+\documentclass[t]{beamer}
+\usepackage{../tex/slides}
+\setbeameroption{hide notes} 
+
+\title{Biostatistiques avancées avec R}
+\subtitle{Représentation et gestion des données}
+\author{\myauthor}
+\institute{\myinstitute}
+\date{}
+
+\makeindex
+
+\input{vc}
+
+\begin{document}
+
+<<setup, include=FALSE, cache=FALSE>>=
+library(knitr)
+render_sweave()
+opts_chunk$set(size = "small", fig.path = 'figures/01-', dev = "cairo_pdf", 
+               dev.args = list(family = "Bitstream Vera Sans"),
+               fig.width = 5, fig.height = 5, 
+               out.width = ".6\\linewidth", fig.align = "center",
+               message=FALSE)
+opts_knit$set(progress = FALSE, verbose = FALSE) 
+options(digits = 2, width = 70)
+@
+
+% ------------------------------------------------------------------- Slide --
+{\setbeamertemplate{footline}{}\frame{\titlepage}}
+% \addtocounter{page}{-1}
+
+
+\section*{Synopsis}
+% ------------------------------------------------------------------- Slide --
+\begin{frame}{Synopsis}
+  \tableofcontents
+\end{frame}      
+
+\section{Gestion des données avec R}
+% ------------------------------------------------------------------- Slide --
+\begin{frame}{Le langage R}
+
+\R est un logiciel pour le traitement et la modélisation de données
+statistiques \citep{ihaka96,venables02}.
+\medskip
+
+Il s'agit avant tout d'un langage de programmation inspiré du langage S
+développé dans les années 80 \citep{becker81,becker84}. 
+\medskip
+
+Le projet est maintenu par la \emph{R Foundation for Statistical Computing}
+(\href{http://www.r-project.org}{www.r-project.org}) et il est soutenu par
+le \emph{R Consortium}
+(\href{http://www.r-consortium.org}{www.r-consortium.org}).  \medskip
+
+Dans cet environnement interactif, l'utilisateur envoie des commandes, \R
+les interprète et renvoit un résultat ("Read-Eval-Print-Loop", REPL).
+
+
+\vfill
+
+\begin{quotation}
+  Let's not kid ourselves: the most widely used piece of software for
+  statistics is Excel --- Brian Ripley
+\end{quotation}
+
+\end{frame}
+
+
+\note{%
+REPL = read-eval-print-loop.
+}
+
+\section{Les variables sous R}
+% ------------------------------------------------------------------- Slide --
+\begin{frame}[fragile]{Exemple de variable}
+
+On parlera de variables et de commandes pour distinguer les objets dans
+lesquels on stocke des données et les fonctions permettant d'opérer sur
+ces données, respectivement.
+\medskip
+
+La commande \texttt{c()} permet d'associer une liste de valeurs à une
+variable ; l'opérateur d'assignation est le symbole \texttt{<-} (ou
+\texttt{=}). Pour afficher le contenu d'une variable, il suffit de taper son
+nom ou d'utiliser \texttt{print()}.
+
+<<>>=
+v <- c(1,1,2,3,5,8,13)
+v
+print(v)
+rm(v)
+@ 
+
+\end{frame}
+
+% ------------------------------------------------------------------- Slide --
+\begin{frame}[fragile]{Représentation des données}
+
+Principaux types de variables : \texttt{numeric} (\texttt{integer},
+\texttt{double}), \texttt{complex}, \texttt{character}, \texttt{logical} 
+\citep{wickham15}.
+  
+<<>>=
+is.numeric(3.14)
+is.double(3.14)
+is.integer(3.14)
+as.integer(3.14)
+@ 
+\end{frame}
+
+
+
+% ------------------------------------------------------------------- Slide --
+\begin{frame}[fragile]{Représentation des données}
+
+En pratique, on travaille rarement avec des variables isolées, mais plutôt
+avec un tableau de données où les observations sont arrangées en lignes et
+les variables en colonnes \citep{wickham14}. 
+Sous \R, on appelle ce type de structure de données un "data frame".
+\medskip
+
+La commande \texttt{data()} permet d'importer des données disponibles dans
+les différents packages \R. 
+\medskip
+
+Généralement, les données sont immédiatement
+disponibles sous forme de data frame et la commande \texttt{ls()} permet de
+vérifier le nom du data frame importé dans l'espace de travail.
+\medskip
+
+Pour visualiser l'en-tête des données, on peut utiliser la commande
+\texttt{head()}.
+
+\end{frame}
+
+% ------------------------------------------------------------------- Slide --
+\begin{frame}[fragile]{}
+
+\bigskip
+Voici par exemple les données d'une étude sur la longueur
+des odontoblastes (variable \texttt{len}) chez 10 cochons d'inde après
+administration de vitamine C à différentes doses (0,5, 1 ou 2 mg, variable
+\texttt{dose}) sous forme d'acide ascorbique ou de jus d'orange (variable
+\texttt{supp}) \citep{bliss52}. 
+
+<<>>=
+data(ToothGrowth)
+head(ToothGrowth)
+@ 
+
+\end{frame}  
+
+
+% ------------------------------------------------------------------- Slide --
+\begin{frame}[fragile]{}
+
+Une aide en ligne (\texttt{help()}) est généralement disponible pour les
+jeux de données internes.
+  
+<<eval=c(1,3)>>=
+ls()
+help(ToothGrowth)
+str(ToothGrowth)
+@ 
+  
+\end{frame}  
+
+
+% ------------------------------------------------------------------- Slide --
+\begin{frame}[fragile]{Propriétés d'un data frame}
+
+La commande \texttt{str()} fournit la taille du tableau de données [2],
+ainsi que le nom des variables, leur mode de représentation et un aperçu des
+10 1\iere observations [3--5]. 
+
+\begin{lstlisting}
+> str(ToothGrowth)
+'data.frame':	60 obs. of  3 variables:
+ $ len : num  4.2 11.5 7.3 5.8 6.4 10 11.2 11.2 5.2 7 ...
+ $ supp: Factor w/ 2 levels "OJ","VC": 2 2 2 2 2 2 2 2 2 2 ...
+ $ dose: num  0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 ...
+> names(ToothGrowth)
+[1] "len"  "supp" "dose"
+> dim(ToothGrowth)
+[1] 60  3    
+\end{lstlisting}
+%$
+
+\end{frame}  
+
+% ------------------------------------------------------------------- Slide --
+\begin{frame}[fragile]{}
+
+\bigskip
+
+\centerline{\includegraphics[width=.8\textwidth]{./figs/toothgrowth.pdf}}  
+  
+\end{frame}  
+
+\section*{Références} 
+% ------------------------------------------------------------------- Slide --
+\begin{frame}[allowframebreaks]{Références} 
+
+\bibliographystyle{plainnat}
+\bibliography{refs}
+
+\end{frame}
+
+% ------------------------------------------------------------------- Slide --
+\begin{frame}[fragile]{Index des commandes}
+
+\printindex
+
+\end{frame}
+
+\end{document}

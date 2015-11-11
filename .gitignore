@@ -1,3 +1,27 @@
+.gitignore
+
+# TeX specific
+tex/
+*.tex
+*.aux
+*.log
+*.toc
+*.nav
+*.snm
+*.vrb
+*.dvi
+*.bbl
+*.blg
+*.out
+*.idx
+*.ind
+*.ilg
+*.el
+*.sty
+*.awk
+vc
+slides/figs/
+
 # History files
 .Rhistory
 .Rapp.history
