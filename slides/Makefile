@@ -13,7 +13,7 @@ $(MASTER): $(DEPENDS)
 	${R_PROG} --no-save --no-restore -e "require(knitr); knit('$*.rnw'); purl('$*.rnw', documentation=0)" $<
 
 %.pdf: %.tex
-	lualatex $<
+	${R_PROG} CMD texi2pdf $<
 
 clean:
 	$(RM) *.aux *.log *.toc *.nav *.snm *.vrb *.dvi *.bbl *.blg *.out *.idx *.ind *.ilg
