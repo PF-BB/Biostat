@@ -106,6 +106,7 @@ v
 print(v)
 rm(v)
 @ 
+\indexfoo{rm}
 
 \end{frame}
 
@@ -162,7 +163,7 @@ administration de vitamine C à différentes doses (0,5, 1 ou 2 mg, variable
 data(ToothGrowth)
 head(ToothGrowth)
 @ 
-
+\indexfoo{data}\indexfoo{head}
 \end{frame}  
 
 
@@ -178,7 +179,7 @@ ls()
 help(ToothGrowth)
 str(ToothGrowth)
 @ 
-  
+\indexfoo{ls}\indexfoo{help}\indexfoo{str}  
 \end{frame}  
 
 
@@ -300,7 +301,7 @@ head(factor(ToothGrowth$dose))
 % ------------------------------------------------------------------- Slide --
 \begin{frame}[fragile]{Systèmes graphiques sous \R}
 
-\R dispose de deux principaux système graphiques -- base et grid \citep{murrell11} -- et de trois interfaces : graphics \citep{becker88}, lattice \citep{sarkar08} et ggplot2 \citep{wickham09}.
+\R dispose de deux principaux système graphiques -- base et grid \citep{murrell11} -- et de trois interfaces : graphics \citep{becker88}, \pkg{lattice} \citep{sarkar08} et \pkg{ggplot2} \citep{wickham09}.
 
 \begin{center}
 \begin{tabular}{cc}
@@ -309,7 +310,7 @@ head(factor(ToothGrowth$dose))
 \end{tabular}
 \end{center}
 
-Le package lattice sera utilisé pour la plupart des illustrations graphiques.
+Le package \pkg{lattice} sera utilisé pour la plupart des illustrations graphiques.
 \end{frame}  
 
 
@@ -331,7 +332,7 @@ xyplot() & diagramme de dispersion
 
 \begin{itemize}
 \item Graphiques prêts à l'usage pour l'analyse exploratoire et la modélisation, légende automatique, conditionnement, thèmes graphiques
-\item Personnalisation délicate parfois (idem pour graphics et ggplot2)
+\item Personnalisation délicate parfois (idem pour graphics et \pkg{ggplot2})
 \end{itemize}
   
 \end{frame}  
@@ -347,7 +348,7 @@ if (!require(latticeExtra))
 lattice.options(default.args = list(axis = axis.grid))
 trellis.par.set(ggplot2like(lwd = 2.5))
 @   
-
+\indexfoo{library}\indexfoo{require}\indexfoo{install.packages}\indexfoo{lattice.options}\indexfoo{trellis.par.set}
 \medskip
 
 <<echo = FALSE, fig.width = 9, fig.height = 3, out.width = "\\linewidth",>>=
@@ -371,6 +372,7 @@ grid.arrange(p1, p2, p3, nrow = 1)
 <<eval = FALSE>>=
 qqmath(~ len, data = ToothGrowth, dist = qunif)
 @ 
+\indexfoo{qqmath}
 
 <<echo = FALSE>>=
 qstats <- quantile(ToothGrowth$len)[2:4]
@@ -395,7 +397,7 @@ print(p)
 <<>>=
 histogram(~ len, data = ToothGrowth, type = "count")
 @ 
-  
+\indexfoo{histogram}
 \end{frame}  
 
 
@@ -459,6 +461,7 @@ variables, tout en tenant compte de la nature continue des données.
 histogram(~ len | supp, data = ToothGrowth, 
           breaks = seq(0, 40, by = 5))
 @ 
+\indexfoo{histogram}
   
 \end{frame}  
 
@@ -475,12 +478,13 @@ de la fenêtre de lissage associée à la fonction ou noyau (voir
 <<out.width = ".5\\linewidth">>=
 densityplot(~ len, data = ToothGrowth)
 @ 
+\indexfoo{densityplot}
   
 \end{frame}  
 
 
 % ------------------------------------------------------------------- Slide --
-\begin{frame}[fragile]{Courbe de densité conditionnelle}
+\begin{frame}[fragile]{}
 
 \bigskip
 
@@ -508,6 +512,7 @@ $K()$ noyau donné (par défaut, gaussien), et $b$ largeur de la fenêtre de lis
 densityplot(~ len, data = ToothGrowth, groups = supp, 
             from = 0, to = 40, auto.key = TRUE)
 @ 
+\indexfoo{densityplot}
   
 \end{frame}  
 
@@ -542,6 +547,7 @@ densityplot(~ len, data = ToothGrowth, groups = supp,
 <<>>=
 bwplot(len ~ supp, data = ToothGrowth, pch = "|")
 @ 
+\indexfoo{bwplot}
 
 \end{frame}
 
@@ -552,6 +558,7 @@ bwplot(len ~ supp, data = ToothGrowth, pch = "|")
 <<>>=
 dotplot(len ~ supp, ToothGrowth, jitter.x = TRUE)
 @ 
+\indexfoo{dotplot}
   
 \end{frame}  
 
@@ -564,11 +571,11 @@ dotplot(len ~ supp, ToothGrowth, jitter.x = TRUE)
 
 \R peut lire des données enregistrées sous de nombreux formats :
 \begin{itemize}
-\item fichiers Stata, SPSS, SAS (packages foreign, Hmisc, readr)
+\item fichiers Stata, SPSS, SAS (packages \pkg{foreign}, \pkg{Hmisc}, \pkg{readr})
 \item fichiers texte (\texttt{read.table()})
-\item fichiers MS Excel (packages xlsx, readxl)
-\item base de données relationnelles ou NoSQL (packages DBI, RMySQL, RPostgreSQL, RMongo, RODBC, RSQLite)
-\item données non structurées de type JSON (packages rjson, jsonlite)  
+\item fichiers MS Excel (packages \pkg{xlsx}, \pkg{readxl})
+\item base de données relationnelles ou NoSQL (packages \pkg{DBI}, \pkg{RMySQL}, \pkg{RPostgreSQL}, \pkg{RMongo}, \pkg{RODBC}, \pkg{RSQLite})
+\item données non structurées de type JSON (packages \pkg{rjson}, \pkg{jsonlite})  
 \end{itemize}
 Les fichiers peuvent être enregistrés sur le disque ou lus directement depuis internet.
   
@@ -608,7 +615,7 @@ read.delim(file, header = TRUE, sep = "\t", quote = "\"",
 \centerline{\includegraphics[width=.6\textwidth]{./figs/datafiles.png}}  
 \medskip
 
-\githere{https://github.com/PF-BB/Biostat}
+\githere{https://github.com/PF-BB/Biostat/data}
 \bigskip
 
 \begin{itemize}
@@ -623,7 +630,7 @@ read.delim(file, header = TRUE, sep = "\t", quote = "\"",
 \section{Mesures d'association}
 
 % ------------------------------------------------------------------- Slide --
-\begin{frame}[fragile]{Aggrégation de données}  
+\begin{frame}[fragile]{L'étude Framingham}  
 
 "Framingham Heart Study" \citep{levy99,dupont09}
 
@@ -631,13 +638,14 @@ read.delim(file, header = TRUE, sep = "\t", quote = "\"",
 fhs <- read.csv("data/Framingham.csv")
 fhs <- subset(fhs, fhs$id != 9999 & complete.cases(fhs))
 dim(fhs)
-names(fhs)
+names(fhs)[1:5]
 @   
+\indexfoo{read.csv}\indexfoo{subset}\indexfoo{dim}\indexfoo{names}
 
 \end{frame}  
 
 % ------------------------------------------------------------------- Slide --
-\begin{frame}[fragile]{Aggrégation de données}  
+\begin{frame}[fragile]{}  
 
 \begin{center}
   \begin{tabular}{lp{.8\linewidth}}
@@ -661,7 +669,7 @@ chdfate	&	CHD outcome (1=patient develops CHD at the end of follow-up, 0=otherwi
 
 
 % ------------------------------------------------------------------- Slide --
-\begin{frame}[fragile]{Aggrégation de données}  
+\begin{frame}[fragile]{Recodage et aggrégation de données}  
 
 <<>>=
 fhs$sex <- factor(fhs$sex, levels = 1:2, 
@@ -670,11 +678,14 @@ summary(fhs$sex)
 aggregate(sbp ~ sex, data = fhs, mean)
 aggregate(sbp ~ sex, data = fhs, sd)
 @   
+\indexfoo{factor}\indexfoo{summary}\indexfoo{aggregate}
 
 \end{frame}  
 
 % ------------------------------------------------------------------- Slide --
-\begin{frame}[fragile]{Aggrégation de données}  
+\begin{frame}[fragile]{}  
+
+\bigskip
 
 Classification IMC (OMS, \url{http://goo.gl/JxzT})
 
@@ -685,11 +696,12 @@ fhs$bmi.cat <- cut(fhs$bmi, breaks=c(16,18.5,25,30,58),
 summary(fhs$bmi.cat)
 levels(fhs$bmi.cat) <- c("Under","Normal","Over","Obese")
 @   
+\indexfoo{summary}\indexfoo{cut}\indexfoo{levels}
 
 \end{frame}  
 
 % ------------------------------------------------------------------- Slide --
-\begin{frame}[fragile]{Aggrégation de données}  
+\begin{frame}[fragile]{Tableaux d'effectifs et de fréquences}  
 
 <<>>=
 xtabs(~ sex + bmi.cat, data = fhs)
@@ -697,67 +709,68 @@ r <- xtabs(~ sex + bmi.cat, data = fhs)
 margin.table(r, margin = 2)
 prop.table(r, margin = 2)
 @   
-
+\indexfoo{xtabs}\indexfoo{margin.table}\indexfoo{prop.table}
 \end{frame}  
 
 % ------------------------------------------------------------------- Slide --
-\begin{frame}[fragile]{Aggrégation de données}  
+\begin{frame}[fragile]{Format de représentation d'un tableau}  
 
 <<>>=
 pr <- prop.table(r, margin = 2)
 as.data.frame(pr)
 @   
-
+\indexfoo{prop.table}\indexfoo{as.data.frame}
 \end{frame}  
 
 % ------------------------------------------------------------------- Slide --
-\begin{frame}[fragile]{Aggrégation de données}  
+\begin{frame}[fragile]{Diagramme de fréquences relatives}  
 
 <<>>=
 dotplot(bmi.cat ~ Freq, data = as.data.frame(pr), 
         groups = sex, xlab = "%", 
         type = c("p", "l"), auto.key = TRUE)
 @   
-
+\indexfoo{dotplot}
 \end{frame}  
 
 % ------------------------------------------------------------------- Slide --
-\begin{frame}[fragile]{Aggrégation de données}  
+\begin{frame}[fragile]{Association entre deux variables numériques}  
 
 <<>>=
 summary(fhs[,c("sbp", "age")])
 cor(fhs$sbp, fhs$age)
 cor(fhs$sbp, fhs$age, method = "spearman")
 @   
-
+\indexfoo{summary}\indexfoo{cor}
 \end{frame}  
 
 % ------------------------------------------------------------------- Slide --
-\begin{frame}[fragile]{Aggrégation de données}  
+\begin{frame}[fragile]{Diagramme de dispersion}  
 
 <<>>=
 xyplot(sbp ~ age, data = fhs, type = c("p", "smooth"))
 @   
-
+\indexfoo{xyplot}
 \end{frame}  
 
 % ------------------------------------------------------------------- Slide --
-\begin{frame}[fragile]{Aggrégation de données}  
+\begin{frame}[fragile]{Diagramme de dispersion conditionnel}  
 
 <<>>=
 xyplot(sbp ~ age, data = fhs, groups = sex, 
        type = c("p", "smooth"), alpha = 0.5)
 @   
-
+\indexfoo{xyplot}
 \end{frame}  
 
 % ------------------------------------------------------------------- Slide --
-\begin{frame}[fragile]{Aggrégation de données}  
+\begin{frame}[fragile]{Enveloppe d'un nuage de points}  
 
 <<>>=
 ch <- with(fhs, chull(sbp, age))
 cor(fhs$sbp[-ch], fhs$age[-ch])
 @ 
+\indexfoo{chull}\indexfoo{cor}
 
 <<echo = FALSE>>=
 chi <- c(ch, ch[1])
@@ -777,15 +790,15 @@ print(p)
 \begin{itemize}
 \item Il est important de vérifier le codage des variables, et de recoder
   en fonction des besoins de l'analyse ou de la visualisation.
-\item On caractérise d'abord les distributions univariées (toutes !) avant
+\item On caractérise d'abord les distributions univariées avant
   de passer aux visualisations ou aux modèles multivariés. Cela permet de
   détecter les éventuelles valeurs aberrantes, la mauvaise
   représentation de certaines modalités d'une variable catégorielle,
   ou l'existence d'asymétrie dans les distributions.
-\item L'interface `lattice` utilise la même notation par formule que les
+\item L'interface \pkg{lattice} utilise la même notation par formule que les
   fonctions R pour la modélisation statistique.
 \item De nombreux outils sont disponibles dans les packages
-  vcd et vcdExtra \citep{meyer06,friendly11} pour la visualisation des données catégorielles.
+  \pkg{vcd} et \pkg{vcdExtra} \citep{meyer06,friendly11} pour la visualisation des données catégorielles.
 \end{itemize}
 \end{frame}
 
@@ -801,17 +814,17 @@ print(p)
 Il s'agit d'une étude prospective visant à identifier les facteurs de
 risque associés à la naissance de bébés dont le poids est inférieur à
 la norme (2,5 kg). Les données proviennent de 189 femmes, dont 59 ont
-accouché d'un enfant en sous-poids. Parmi les variables d'intérêt
+accouché d'un enfant en sous poids. Parmi les variables d'intérêt
 figurent l'âge de la mère, le poids de la mère lors des dernières
 menstruations, l'ethnicité de la mère et le nombre de visites
 médicales durant le premier trimestre de grossesse \citep{hosmer89}. \bigskip
 
-Elle est disponible sous R dans le package MASS : 
+Elle est disponible sous R dans le package \pkg{MASS} : 
 
 <<eval = FALSE>>=
 data(birthwt, package="MASS")
 @ 
-
+\indexfoo{data}
 
 \end{frame}
 
@@ -819,16 +832,16 @@ data(birthwt, package="MASS")
 {\setbeamercolor{bkg}{bg=verypalegrey}%
 \begin{frame}[fragile]{Exercices}
 
-
 \begin{enumerate}
 \item Recoder les variables catégorielles en facteur et faire un résumé numérique et graphique de chaque variable.
 \item Quel est le poids moyen des femmes qui fumait durant leur grossesse ?
-\item Combien dénombre-t-on d'antécédents d'hypertension chez les femmes
+\item Combien dénombre t-on d'antécédents d'hypertension chez les femmes
   pesant plus de 60 kg (sachant que les mesures du fichier sont exprimées en
   livres) ?
 \item Quel est le poids minimal des bébés chez les mères n'ayant pas
   manifesté une irritabilité utérine ?
-\item Recoder la variable \texttt{ftv} en variable binaire (0 ou 1+). Construire un tableau croisant cette variable avec la variable \texttt{low} ; calculer la moyenne et l'écart-type pour la variable \texttt{bwt} dans les deux groupes d'individus définis par cette variable \texttt{ftv01}.
+\item Recoder la variable \texttt{ftv} en variable binaire (\texttt{0} ou \texttt{1+}). 
+\item Construire un tableau croisant cette variable avec la variable \texttt{low} ; calculer la moyenne et l'écart-type pour la variable \texttt{bwt} dans les deux groupes d'individus définis par cette variable \texttt{ftv01}.
 \end{enumerate}
 
 \end{frame}
