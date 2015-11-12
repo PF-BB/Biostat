@@ -79,13 +79,6 @@ les interprète et renvoit un résultat ("Read-Eval-Print-Loop", REPL).
   
 \end{frame}
 
-% ------------------------------------------------------------------- Slide --
-\begin{frame}{Ressources}
-
-  
-\end{frame}
-
-
 \section{Gestion des données avec R}
 % ------------------------------------------------------------------- Slide --
 \begin{frame}[fragile]{Exemple de variable}
@@ -137,9 +130,7 @@ Sous \R, on appelle ce type de structure de données un "data frame".
 \medskip
 
 La commande \texttt{data()} permet d'importer des données disponibles dans
-les différents packages \R. 
-
-Généralement, les données sont immédiatement
+les différents packages \R. Généralement, les données sont immédiatement
 disponibles sous forme de data frame et la commande \texttt{ls()} permet de
 vérifier le nom du data frame importé dans l'espace de travail.
 \medskip
@@ -332,7 +323,7 @@ xyplot() & diagramme de dispersion
 
 \begin{itemize}
 \item Graphiques prêts à l'usage pour l'analyse exploratoire et la modélisation, légende automatique, conditionnement, thèmes graphiques
-\item Personnalisation délicate parfois (idem pour graphics et \pkg{ggplot2})
+\item Personnalisation délicate (idem pour graphics et \pkg{ggplot2})
 \end{itemize}
   
 \end{frame}  
@@ -435,16 +426,18 @@ do.call(grid.arrange, p)
 % ------------------------------------------------------------------- Slide --
 \begin{frame}[fragile]{Graphiques en trellis}
 
-Les graphiques en trellis \citep{cleveland93,@becker96} offrent une
+Les graphiques en trellis \citep{cleveland93,becker96} offrent une
 structure de graphique simple et efficace pour représenter des données
 multidimensionnelles. En particulier, ils introduisent la notion de
-facettes pour représenter des distributions conditionnelles.
+\textbf{facettes} pour représenter des distributions conditionnelles.
+\medskip
 
-La notation utilisée est la notation par formule :
+La notation utilisée est la \textbf{notation par formule} :
 \begin{itemize}
-\item y ~ x | a, y en fonction de x condit. à a
-\item y ~ x | a + b, y en fonction de x condit. à a et b 
+\item y \textasciitilde\ x | a, y en fonction de x condit. à a
+\item y \textasciitilde\ x | a + b, y en fonction de x condit. à a et b 
 \end{itemize}
+\medskip
 
 Les variables continues peuvent être "catégorisées" à l'aide de
 "shingles". En transformant les variables numériques en facteurs, il
@@ -689,12 +682,13 @@ aggregate(sbp ~ sex, data = fhs, sd)
 
 Classification IMC (OMS, \url{http://goo.gl/JxzT})
 
-<<>>=
+<<eval = 1:4>>=
 summary(fhs$bmi)
 fhs$bmi.cat <- cut(fhs$bmi, breaks=c(16,18.5,25,30,58), 
                   right = FALSE)
 summary(fhs$bmi.cat)
 levels(fhs$bmi.cat) <- c("Under","Normal","Over","Obese")
+relevel(fhs$bmi.cat, ref = "Normal")
 @   
 \indexfoo{summary}\indexfoo{cut}\indexfoo{levels}
 
@@ -788,15 +782,15 @@ print(p)
 \begin{frame}[fragile]{Ce qu'il faut retenir}  
 
 \begin{itemize}
-\item Il est important de vérifier le codage des variables, et de recoder
+\item Il est important de vérifier le \textbf{codage des variables}, et de recoder
   en fonction des besoins de l'analyse ou de la visualisation.
-\item On caractérise d'abord les distributions univariées avant
+\item On caractérise d'abord les \textbf{distributions univariées} avant
   de passer aux visualisations ou aux modèles multivariés. Cela permet de
   détecter les éventuelles valeurs aberrantes, la mauvaise
   représentation de certaines modalités d'une variable catégorielle,
   ou l'existence d'asymétrie dans les distributions.
-\item L'interface \pkg{lattice} utilise la même notation par formule que les
-  fonctions R pour la modélisation statistique.
+\item L'interface \pkg{lattice} utilise la même \textbf{notation par formule} que les
+  fonctions \R pour la modélisation statistique.
 \item De nombreux outils sont disponibles dans les packages
   \pkg{vcd} et \pkg{vcdExtra} \citep{meyer06,friendly11} pour la visualisation des données catégorielles.
 \end{itemize}
