@@ -23,7 +23,7 @@ opts_chunk$set(size = "small", fig.path = 'figs/01-', dev = "cairo_pdf",
                out.width = ".6\\linewidth", fig.align = "center",
                message=FALSE)
 opts_knit$set(progress = FALSE, verbose = FALSE) 
-options(digits = 2, width = 70)
+options(digits = 3, width = 70)
 library(latticeExtra)
 lattice.options(default.args = list(axis = axis.grid))
 trellis.par.set(ggplot2like(lwd = 2.5))
@@ -324,7 +324,8 @@ stripplot() & diagramme de dispersion univarié\\
 qqmath() & "quantile plot"\\  
 bwplot() & diagramme en boîte à moustaches\\
 barchart() & diagramme en barres\\
-dotplot() & diagramme de Cleveland
+dotplot() & diagramme de Cleveland\\
+xyplot() & diagramme de dispersion  
 \end{tabular}
 \end{center}
 
@@ -429,6 +430,27 @@ do.call(grid.arrange, p)
 
 \end{frame}
 
+% ------------------------------------------------------------------- Slide --
+\begin{frame}[fragile]{Graphiques en trellis}
+
+Les graphiques en trellis \citep{cleveland93,@becker96} offrent une
+structure de graphique simple et efficace pour représenter des données
+multidimensionnelles. En particulier, ils introduisent la notion de
+facettes pour représenter des distributions conditionnelles.
+
+La notation utilisée est la notation par formule :
+\begin{itemize}
+\item y ~ x | a, y en fonction de x condit. à a
+\item y ~ x | a + b, y en fonction de x condit. à a et b 
+\end{itemize}
+
+Les variables continues peuvent être "catégorisées" à l'aide de
+"shingles". En transformant les variables numériques en facteurs, il
+devient possible de représenter un plus grand nombre de croisement de
+variables, tout en tenant compte de la nature continue des données.
+
+\end{frame}
+
 
 % ------------------------------------------------------------------- Slide --
 \begin{frame}[fragile]{Histogramme de fréquences relatives}
@@ -444,18 +466,45 @@ histogram(~ len | supp, data = ToothGrowth,
 % ------------------------------------------------------------------- Slide --
 \begin{frame}[fragile]{Courbe de densité}
 
-<<>>=
-library(lattice)
+Pour pallier à l'arbitraire du choix du nombre d'intervalles, on peut
+préférer représenter la fonction de densité empirique
+\citep{venables02, silverman86}. Il reste toutefois à définir la largeur
+de la fenêtre de lissage associée à la fonction ou noyau (voir
+\texttt{help(bw.nrd0)} ou \S 5.6 \citep{venables02}).
+
+<<out.width = ".5\\linewidth">>=
 densityplot(~ len, data = ToothGrowth)
 @ 
   
 \end{frame}  
 
+
+% ------------------------------------------------------------------- Slide --
+\begin{frame}[fragile]{Courbe de densité conditionnelle}
+
+\bigskip
+
+<<echo = FALSE, fig.width = 9, fig.height = 3, out.width = ".9\\linewidth">>=
+p1 <- densityplot(~ len, data = ToothGrowth, adjust = 0.5, main = "adjust = 0.5", par.settings = ggplot2like())
+p2 <- densityplot(~ len, data = ToothGrowth, adjust = 1, main = "adjust = 1 (défaut)", par.settings = ggplot2like())
+p3 <- densityplot(~ len, data = ToothGrowth, adjust = 2, main = "adjust = 2", par.settings = ggplot2like())
+grid.arrange(p1, p2, p3, nrow = 1)
+@   
+  
+\[
+\hat f(x) = \frac{1}{nb}\sum_{j=1}^nK\left(\frac{x-x_j}{b}\right)  
+\]
+
+$K()$ noyau donné (par défaut, gaussien), et $b$ largeur de la fenêtre de lissage : $\hat b=1.06\,\text{ou}\,0.9\min (\hat\sigma, R/1.34)n^{-1/5}$.
+
+
+\end{frame}
+
+
 % ------------------------------------------------------------------- Slide --
 \begin{frame}[fragile]{Courbe de densité conditionnelle}
 
 <<>>=
-library(lattice)
 densityplot(~ len, data = ToothGrowth, groups = supp, 
             from = 0, to = 40, auto.key = TRUE)
 @ 
@@ -487,11 +536,303 @@ densityplot(~ len, data = ToothGrowth, groups = supp,
 \end{frame}  
 
 
+% ------------------------------------------------------------------- Slide --
+\begin{frame}[fragile]{Diagramme de type boîtes à moustaches}
+
+<<>>=
+bwplot(len ~ supp, data = ToothGrowth, pch = "|")
+@ 
+
+\end{frame}
+
+
+% ------------------------------------------------------------------- Slide --
+\begin{frame}[fragile]{Diagrammes en barres et en points}
+
+<<>>=
+dotplot(len ~ supp, ToothGrowth, jitter.x = TRUE)
+@ 
+  
+\end{frame}  
+
+
 
 \section{Importation et sauvegarde de données}
 
+% ------------------------------------------------------------------- Slide --
+\begin{frame}[fragile]{Type de fichiers}
+
+\R peut lire des données enregistrées sous de nombreux formats :
+\begin{itemize}
+\item fichiers Stata, SPSS, SAS (packages foreign, Hmisc, readr)
+\item fichiers texte (\texttt{read.table()})
+\item fichiers MS Excel (packages xlsx, readxl)
+\item base de données relationnelles ou NoSQL (packages DBI, RMySQL, RPostgreSQL, RMongo, RODBC, RSQLite)
+\item données non structurées de type JSON (packages rjson, jsonlite)  
+\end{itemize}
+Les fichiers peuvent être enregistrés sur le disque ou lus directement depuis internet.
+  
+\end{frame}  
+
+% ------------------------------------------------------------------- Slide --
+\begin{frame}[fragile]{Lecture d'un fichier texte}
+\texttt{help(read.table)}
+
+\begin{lstlisting}[basicstyle=\scriptsize,showstringspaces=false,keywordstyle=\ttfamily]
+read.table(file, (*@ \textbf{header = FALSE} @*), (*@ \textbf{sep = ``''} @*), quote = "\"'",
+           (*@ \textbf{dec = ``.''} @*), numerals = c("allow.loss", "warn.loss", "no.loss"),
+           row.names, col.names, as.is = !stringsAsFactors,
+           (*@ \textbf{na.strings = ``NA''} @*), colClasses = NA, nrows = -1,
+           skip = 0, check.names = TRUE, fill = !blank.lines.skip,
+           strip.white = FALSE, blank.lines.skip = TRUE,
+           comment.char = "#",
+           allowEscapes = FALSE, flush = FALSE,
+           (*@ \textbf{stringsAsFactors = default.stringsAsFactors()} @*),
+           fileEncoding = "", encoding = "unknown", text, skipNul = FALSE)
+
+read.csv(file, (*@ \textbf{header = TRUE} @*), (*@ \textbf{sep = ``,''} @*), quote = "\"",
+         (*@ \textbf{dec = ``.''} @*), fill = TRUE, comment.char = "", ...)
+
+read.csv2(file, (*@ \textbf{header = TRUE} @*), (*@ \textbf{sep = ``;''} @*), quote = "\"",    
+         (*@ \textbf{dec = ``,''} @*), fill = TRUE, comment.char = "", ...)
+
+read.delim(file, header = TRUE, sep = "\t", quote = "\"",
+           dec = ".", fill = TRUE, comment.char = "", ...)
+\end{lstlisting}
+\end{frame}  
+
+% ------------------------------------------------------------------- Slide --
+\begin{frame}[fragile]{Exemples de fichiers}
+
+\bigskip
+\centerline{\includegraphics[width=.6\textwidth]{./figs/datafiles.png}}  
+\medskip
+
+\githere{https://github.com/PF-BB/Biostat}
+\bigskip
+
+\begin{itemize}
+\item \texttt{Framingham.csv}, "Framingham Heart Study" \citep{levy99,dupont09}
+\item \texttt{PAINT.DAT}, "Health survey of paint sprayers" \citep{everitt01}
+\item \texttt{polymorphism.dta}, "Polymorphisme et gène du récepteur estrogène" \citep{dupont09}
+\end{itemize}
+
+\end{frame}  
+
 
 \section{Mesures d'association}
+
+% ------------------------------------------------------------------- Slide --
+\begin{frame}[fragile]{Aggrégation de données}  
+
+"Framingham Heart Study" \citep{levy99,dupont09}
+
+<<>>=
+fhs <- read.csv("data/Framingham.csv")
+fhs <- subset(fhs, fhs$id != 9999 & complete.cases(fhs))
+dim(fhs)
+names(fhs)
+@   
+
+\end{frame}  
+
+% ------------------------------------------------------------------- Slide --
+\begin{frame}[fragile]{Aggrégation de données}  
+
+\begin{center}
+  \begin{tabular}{lp{.8\linewidth}}
+\multicolumn{2}{c}{Données à l'inclusion}\\
+    \hline
+sbp	&	systolic blood pressure (SBP) in mm Hg\\
+dbp	&	diastolic blood pressure (DBP) in mm Hg\\
+age	&	age in years\\
+scl	&	serum cholesterol (SCL) in mg/100ml\\
+bmi	&	body mass index (BMI) = weight/height2 in kg/m2\\
+sex	&	gender (1=male, 2=female)\\
+month	&	month of year in which baseline exam occurred\\
+id	&	patient identification variable (numbered 1 to 4699)\\
+\multicolumn{2}{c}{Données de suivi}\\
+    \hline
+followup &	follow-up in days\\
+chdfate	&	CHD outcome (1=patient develops CHD at the end of follow-up, 0=otherwise)
+  \end{tabular}
+\end{center}
+\end{frame}
+
+
+% ------------------------------------------------------------------- Slide --
+\begin{frame}[fragile]{Aggrégation de données}  
+
+<<>>=
+fhs$sex <- factor(fhs$sex, levels = 1:2, 
+                 labels = c("M", "F"))
+summary(fhs$sex)
+aggregate(sbp ~ sex, data = fhs, mean)
+aggregate(sbp ~ sex, data = fhs, sd)
+@   
+
+\end{frame}  
+
+% ------------------------------------------------------------------- Slide --
+\begin{frame}[fragile]{Aggrégation de données}  
+
+Classification IMC (OMS, \url{http://goo.gl/JxzT})
+
+<<>>=
+summary(fhs$bmi)
+fhs$bmi.cat <- cut(fhs$bmi, breaks=c(16,18.5,25,30,58), 
+                  right = FALSE)
+summary(fhs$bmi.cat)
+levels(fhs$bmi.cat) <- c("Under","Normal","Over","Obese")
+@   
+
+\end{frame}  
+
+% ------------------------------------------------------------------- Slide --
+\begin{frame}[fragile]{Aggrégation de données}  
+
+<<>>=
+xtabs(~ sex + bmi.cat, data = fhs)
+r <- xtabs(~ sex + bmi.cat, data = fhs)
+margin.table(r, margin = 2)
+prop.table(r, margin = 2)
+@   
+
+\end{frame}  
+
+% ------------------------------------------------------------------- Slide --
+\begin{frame}[fragile]{Aggrégation de données}  
+
+<<>>=
+pr <- prop.table(r, margin = 2)
+as.data.frame(pr)
+@   
+
+\end{frame}  
+
+% ------------------------------------------------------------------- Slide --
+\begin{frame}[fragile]{Aggrégation de données}  
+
+<<>>=
+dotplot(bmi.cat ~ Freq, data = as.data.frame(pr), 
+        groups = sex, xlab = "%", 
+        type = c("p", "l"), auto.key = TRUE)
+@   
+
+\end{frame}  
+
+% ------------------------------------------------------------------- Slide --
+\begin{frame}[fragile]{Aggrégation de données}  
+
+<<>>=
+summary(fhs[,c("sbp", "age")])
+cor(fhs$sbp, fhs$age)
+cor(fhs$sbp, fhs$age, method = "spearman")
+@   
+
+\end{frame}  
+
+% ------------------------------------------------------------------- Slide --
+\begin{frame}[fragile]{Aggrégation de données}  
+
+<<>>=
+xyplot(sbp ~ age, data = fhs, type = c("p", "smooth"))
+@   
+
+\end{frame}  
+
+% ------------------------------------------------------------------- Slide --
+\begin{frame}[fragile]{Aggrégation de données}  
+
+<<>>=
+xyplot(sbp ~ age, data = fhs, groups = sex, 
+       type = c("p", "smooth"), alpha = 0.5)
+@   
+
+\end{frame}  
+
+% ------------------------------------------------------------------- Slide --
+\begin{frame}[fragile]{Aggrégation de données}  
+
+<<>>=
+ch <- with(fhs, chull(sbp, age))
+cor(fhs$sbp[-ch], fhs$age[-ch])
+@ 
+
+<<echo = FALSE>>=
+chi <- c(ch, ch[1])
+p <- xyplot(sbp ~ age, data=fhs,
+             panel=function(x, y, ...) {
+               panel.xyplot(x, y, ...)
+               panel.lmline(x, y, ...)
+               panel.lines(x[chi], y[chi], col="#BF3030", ...)
+             })
+print(p)
+@ 
+\end{frame}
+
+% ------------------------------------------------------------------- Slide --
+\begin{frame}[fragile]{Ce qu'il faut retenir}  
+
+\begin{itemize}
+\item Il est important de vérifier le codage des variables, et de recoder
+  en fonction des besoins de l'analyse ou de la visualisation.
+\item On caractérise d'abord les distributions univariées (toutes !) avant
+  de passer aux visualisations ou aux modèles multivariés. Cela permet de
+  détecter les éventuelles valeurs aberrantes, la mauvaise
+  représentation de certaines modalités d'une variable catégorielle,
+  ou l'existence d'asymétrie dans les distributions.
+\item L'interface `lattice` utilise la même notation par formule que les
+  fonctions R pour la modélisation statistique.
+\item De nombreux outils sont disponibles dans les packages
+  vcd et vcdExtra \citep{meyer06,friendly11} pour la visualisation des données catégorielles.
+\end{itemize}
+\end{frame}
+
+\section{Application}
+
+% ------------------------------------------------------------------- Slide --
+\begin{frame}[fragile]{Étude sur les poids de naissance}
+
+
+"The low birth weight study"
+\medskip
+
+Il s'agit d'une étude prospective visant à identifier les facteurs de
+risque associés à la naissance de bébés dont le poids est inférieur à
+la norme (2,5 kg). Les données proviennent de 189 femmes, dont 59 ont
+accouché d'un enfant en sous-poids. Parmi les variables d'intérêt
+figurent l'âge de la mère, le poids de la mère lors des dernières
+menstruations, l'ethnicité de la mère et le nombre de visites
+médicales durant le premier trimestre de grossesse \citep{hosmer89}. \bigskip
+
+Elle est disponible sous R dans le package MASS : 
+
+<<eval = FALSE>>=
+data(birthwt, package="MASS")
+@ 
+
+
+\end{frame}
+
+% ------------------------------------------------------------------- Slide --
+{\setbeamercolor{bkg}{bg=verypalegrey}%
+\begin{frame}[fragile]{Exercices}
+
+
+\begin{enumerate}
+\item Recoder les variables catégorielles en facteur et faire un résumé numérique et graphique de chaque variable.
+\item Quel est le poids moyen des femmes qui fumait durant leur grossesse ?
+\item Combien dénombre-t-on d'antécédents d'hypertension chez les femmes
+  pesant plus de 60 kg (sachant que les mesures du fichier sont exprimées en
+  livres) ?
+\item Quel est le poids minimal des bébés chez les mères n'ayant pas
+  manifesté une irritabilité utérine ?
+\item Recoder la variable \texttt{ftv} en variable binaire (0 ou 1+). Construire un tableau croisant cette variable avec la variable \texttt{low} ; calculer la moyenne et l'écart-type pour la variable \texttt{bwt} dans les deux groupes d'individus définis par cette variable \texttt{ftv01}.
+\end{enumerate}
+
+\end{frame}
+}
 
 \section*{Références} 
 % ------------------------------------------------------------------- Slide --
