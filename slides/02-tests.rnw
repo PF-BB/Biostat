@@ -1,0 +1,408 @@
+\documentclass[t,table]{beamer}
+\usepackage{../tex/slides}
+\setbeameroption{hide notes} 
+
+\title{Biostatistiques avancées avec R}
+\subtitle{Tests de comparaison de base}
+\author{\myauthor}
+\institute{\myinstitute}
+\date{}
+
+\makeindex
+
+\input{vc}
+
+\begin{document}
+
+<<setup, include=FALSE, cache=FALSE>>=
+library(knitr)
+render_sweave()
+opts_chunk$set(size = "small", fig.path = 'figs/01-', dev = "cairo_pdf", 
+               dev.args = list(family = "Bitstream Vera Sans"),
+               fig.width = 5, fig.height = 5, 
+               out.width = ".6\\linewidth", fig.align = "center",
+               message=FALSE)
+opts_knit$set(progress = FALSE, verbose = FALSE) 
+options(digits = 3, width = 70)
+library(latticeExtra)
+lattice.options(default.args = list(axis = axis.grid))
+trellis.par.set(ggplot2like(lwd = 2.5))
+@
+
+% ------------------------------------------------------------------- Slide --
+{\setbeamertemplate{footline}{}\frame{\titlepage}}
+% \addtocounter{page}{-1}
+
+
+\section*{Synopsis}
+% ------------------------------------------------------------------- Slide --
+\begin{frame}{Synopsis}
+  \tableofcontents
+\end{frame}      
+
+\section{Éléments de contexte}
+% ------------------------------------------------------------------- Slide --
+\begin{frame}{Objectifs}
+
+  
+Dans ce cours, on s'intéressera aux tests d'inférence simples visant à comparer des indices de tendance centrale calculés sur des données continues, des proportions, des mesures de concordance, estimés à partir de données observées à la suite d'un procédé d'échantillonnage.
+\medskip
+
+On considèrera deux échantillons ou plus, indépendants ou non.
+\medskip
+
+L'objectif est de démontrer le principe général de la démarche du test d'hypothèse à partir de quelques statistiques de test rencontrées fréquemment en recherche biomédicale.
+
+\bigskip
+Ce cours s'appuie en partie sur l'ouvrage de Everitt \& Rabe-Hesketh \citep{everitt01}.
+
+\end{frame}
+
+% ------------------------------------------------------------------- Slide --
+\begin{frame}{Hypothèse nulle, risque d'erreur}
+
+De manière générale, lorsque l'on s'intéresse à un effet particulier,
+l'idée est de postuler l'absence d'effet (\textbf{hypothèse nulle}, $H_0$)
+et de chercher à vérifier si les données observées sont compatibles ou
+non avec cette hypothèse. C'est le principe même de la démarche
+hypothético-déductive.
+\medskip
+
+Pour réaliser un tel test, il est nécessaire de
+construire une \textbf{statistique de test}, dont la distribution
+d'échantillonnage est connue (ou peut être approximée) sous $H_0$, qui
+nous permettra de répondre à la question suivante : en supposant qu'il
+n'existe pas d'effet dans la population, quelle est la probabilité
+d'observer une statistique de test au moins aussi extrême que celle
+estimée à partir de l'échantillon choisi aléatoirement dans cette
+population ? 
+
+\end{frame}
+
+% ------------------------------------------------------------------- Slide --
+\begin{frame}{}
+
+\bigskip
+
+Si cette probabilité se révèle "suffisamment petite", on
+conclura qu'il est vraisemblablement peu probable que le résultat
+observé soit dû simplement au hasard de l'échantillonnage.
+\bigskip
+
+\textbf{Risque de première et deuxième espèce :}
+
+Supposons que l'on est à prendre une décision concernant une hypothèse
+nulle. Le fameux "risque alpha" (type I) est le risque de conclure à
+tort à l'existence d'un effet alors qu'en réalité ce dernier n'existe
+pas. 
+\medskip
+
+À ce risque est typiquement associé, de manière asymétrique, le
+risque (type II) de ne pas rejeter $H_0$ lorsque celle-ci est en
+réalité fausse ; le complémentaire de ce risque est appelée la
+puissance. 
+\medskip
+
+\end{frame}
+
+
+% ------------------------------------------------------------------- Slide --
+\begin{frame}{}
+
+\bigskip
+
+Ces risques sont effectivement asymétriques :
+
+\begin{itemize}
+\item dans un essai thérapeutique, si l'on doit décider si on un nouveau
+  traitement est meilleur que le traitement courant, on cherche à
+  minimiser le risque d'une mauvaise décision ($\alpha=0.05$) ;
+\item si à la fin de l'essai, on ne met en évidence aucune différences
+  significatives, cela ne signifie pas que les traitements sont
+  équivalents : il existe un risque $\beta$ qu'il existe une réelle
+  différence entre les deux.
+\end{itemize}
+  
+\end{frame}
+
+
+% ------------------------------------------------------------------- Slide --
+\begin{frame}{Deux illustrations intuitives}
+
+\begin{quotation}
+Statisticians are applied philosophers. Philosophers argue how many angels can dance on the head of a needle; statisticians count them. Or rather, count how many can probably dance. (...) We can predict nothing with certainty but we can predict how uncertain our predictions will be, on average that is. Statistics is the science that tells us how.
+--- Stephen Senn
+\end{quotation} 
+
+\begin{enumerate}
+\item Jeu de pile ou face  
+\item Expérience de biologie cellulaire
+\end{enumerate}
+\end{frame}
+
+
+% ------------------------------------------------------------------- Slide --
+\begin{frame}{Encore du dénombrement}
+
+On dispose de 6 lots contenant des cellules en culture (pendant 24h), dont 3 ont reçu un supplément de vitamine E (groupe expérimental). Après 10 jours, on examine les auto-radiographies pour dénombrer le nombre total de cellules dans chaque lot.
+\medskip
+
+Le technicien qui apporte les résultats indique au chercheur que les étiquettes permettant d'identifier quels lots ont été traités ont été égarées \citep{good05}...
+\bigskip
+\bigskip
+
+\centerline{\includegraphics[width=.8\textwidth]{./figs/dishes.png}}  
+
+\end{frame}
+
+% ------------------------------------------------------------------- Slide --
+\begin{frame}{}
+
+\bigskip\bigskip
+
+\centerline{\includegraphics[width=\textwidth]{./figs/dishes2.png}}  
+
+\bigskip\bigskip
+
+Si les trois premiers lots correspondent au groupe traité à la vitamine E, alors \emph{a priori} l'expérience semble concluante : quel que soit le lot, le nombre de cellules apparaît largement supérieur à n'importe lequel des trois derniers lots.
+\medskip
+
+Est-il possible d'évaluer la \textbf{plausibilité} d'un tel résultat ?
+
+\end{frame}
+
+% ------------------------------------------------------------------- Slide --
+\begin{frame}{De la nécessité de se comparer}
+
+\begin{itemize}
+\item Il nous faut un moyen de comparer l'effet de l'adjonction de vitamine E par rapport à la situation où les lots ne sont pas traités.
+\item Un test statistique judicieusement choisi nous permettra de tester l'invraisemblance d'une hypothèse, appelée hypothèse nulle et formulée dans un cadre hypothetico-déductif.  
+\end{itemize}
+
+\medskip
+
+Comme dans un essai clinique, on cherche donc à comparer l'effet d'un traitement A à celui d'un traitement B de référence (ou placebo), qui sert de comparateur. La différence observée entre les effets de A et B peut faire l'objet d'un \textbf{test statistique}.
+Celui-ci permet de confronter la valeur observée à celles pouvant résulter de simples \textbf{fluctuations d'échantillonnage} (c.a.d. des différences dûes au "hasard", signifiant ici l'absence d'une réelle différence). 
+
+\end{frame}
+
+% ------------------------------------------------------------------- Slide --
+\begin{frame}{}
+
+\bigskip\bigskip
+
+Si la différence observée est suffisamment grande, et on considérera que c'est le cas s'il y a moins de 5~\% de chance d'observer un \textbf{résultat aussi extrême}, alors on concluera que celle-ci ne peut vraisemblablement pas être expliquée par de simples fluctuations d'échantillonnage et que les données observées ne sont pas compatibles avec l'\textbf{hypothèse nulle d'absence d'effet}, appelée $H_0$.
+\medskip
+
+On rejetera donc $H_0$ si la probabilité $p$ d'observer, du seul fait du hasard, une différence au moins aussi grande que celle observée entre les effets de A et B est inférieure à 5~\%. Le "petit p" représente cette probabilité et est appelé \textbf{degré de signification}.
+
+\end{frame}
+
+\begin{frame}{}
+
+\bigskip\bigskip
+
+En somme, on accepte de se tromper dans 5~\% des cas en rejetant l'hypothèse d'absence de différence.
+D'un autre côté, il existe un risque $\beta$ de ne pas être en mesure de rejeter l'hypothèse nulle lorsqu'une réelle différence existe. Le complément $1-\beta$, appelée \textbf{puissance du test}, représente donc la probabilité de rejeter correctement l'hypothèse nulle en faveur de l'hypothèse alternative.
+\medskip
+
+\centerline{\includegraphics[width=.85\textwidth]{./figs/guilty.png}}  
+
+\vfill
+{\scriptsize Source : \url{http://www.intuitor.com/statistics/T1T2Errors.html}}
+
+\end{frame}
+
+% ------------------------------------------------------------------- Slide --
+\begin{frame}{En résumé}
+
+\begin{enumerate}
+\item Définir une hypothèse nulle ($H_0$), une hypothèse alternative, et les risques associés à la prise d'une décision concernant le résultat observé à partir d'un échantillon.
+\item Choisir une statistique de test, S.
+\item Calculer la valeur de S.
+\item Définir la distribution d'échantillonnage de S sous $H_0$.
+\item Conclure à partir de cette distribution.
+\end{enumerate}
+  
+\end{frame}
+
+% ------------------------------------------------------------------- Slide --
+\begin{frame}{Mise en \oe uvre du test d'hypothèse}
+
+Soit $H_0$: "la vitamine E ne modifie pas la croissance des cultures". Sous $H_0$, les étiquettes "traité" ou "non traité" n'apportent acuune information du point de vue de la mesure considérée (tous les lots sont "échangeables").
+\medskip
+
+Il y a ${6 \choose 3} = 20$ manières de définir un groupe composé de 3 éléments pris parmi 6. Considérons la somme de l'ensemble des cellules développées dans les 3 lots définissant un même groupe. Appelons-la s. Ici, $s_{\text{obs}} = 121 + 118 + 110 = 349$.
+\medskip
+
+Quelles sont les valeurs possibles de s lorsque l'on recombine les lots pour former deux groupes indépendants ?
+
+  
+\end{frame}
+
+% ------------------------------------------------------------------- Slide --
+\begin{frame}[fragile]{}
+
+\bigskip\bigskip
+
+Parmi les 20 résultats, voici les 3 premiers et les 3 derniers :
+
+\begin{center}
+\begin{tabular}{lrrrr}
+  \hline
+    1  &  121 &  118 &  110 &  \textbf{349}\\
+    2  &  121 &  118 &  34  &  273\\
+    3  &  121 &  118 &  12  &  251\\
+    \ldots & \ldots & \ldots & \ldots & \ldots\\ 
+    18 &  110 &  34  &  22  &  166\\
+    19 &  110 &  12  &  22  &  144\\
+    20 &  34  &  12  &  22  &  68\\
+  \hline
+\end{tabular}
+\end{center}
+
+En fait, s prend les valeurs :
+
+\textbf{349} 273 251 261 265 243 253 167 177 155 262 240 250 164 174 152 156 166 144 68
+
+\end{frame}
+
+% ------------------------------------------------------------------- Slide --
+\begin{frame}[fragile]{}
+
+\bigskip\bigskip
+
+\textbf{Conclusion :} Parmi les 20 résultats possibles, le résultat $s_{\text{obs}} = 349$ est le plus extrême et il y a exactement 1/20 = 5~\% de chances d'observer un résultat aussi extrême.
+\medskip
+
+Il est donc peu probable que les résultats observés (les trois premiers lots sont ceux qui ont été traités) puissent s'expliquer simplement par les fluctuations d'échantillonnage.
+
+\end{frame}
+
+% ------------------------------------------------------------------- Slide --
+\begin{frame}[fragile]{Pile ou face ?}
+
+On lance une pièce 10 fois et on observe la séquence de résultats suivants :
+
+P P P P F F F P F P
+\medskip
+
+\textbf{Question générale :} la pièce est-elle truquée ?
+
+
+\end{frame}
+
+
+% ------------------------------------------------------------------- Slide --
+\begin{frame}[fragile]{}
+
+\medskip
+
+\begin{center}
+\begin{tabular}{cccccccccc}
+\includegraphics[width=.05\textwidth]{./figs/pile.png} &
+\includegraphics[width=.05\textwidth]{./figs/pile.png} &
+\includegraphics[width=.05\textwidth]{./figs/pile.png} &
+\includegraphics[width=.05\textwidth]{./figs/pile.png} &
+\includegraphics[width=.05\textwidth]{./figs/face.png} &
+\includegraphics[width=.05\textwidth]{./figs/face.png} &
+\includegraphics[width=.05\textwidth]{./figs/face.png} &
+\includegraphics[width=.05\textwidth]{./figs/pile.png} &
+\includegraphics[width=.05\textwidth]{./figs/face.png} &
+\includegraphics[width=.05\textwidth]{./figs/pile.png}
+\end{tabular}  
+\end{center}
+\medskip
+
+Si l'on suppose une pièce bien équilibrée et des lancers indépendants, le nombre attendu de "Face" est $10 x 0,5 = 5$. La fréquence observée de "Face" dans l'expérience est de $4/10 = 0.4$.
+\medskip
+
+Nous pouvons formuler une hypothèse nulle selon laquelle $p = 0.5$, et l'hypothèse alternative est $p \neq 0.5$. En utilisant un \textbf{test binomial}, il est possible de vérifier si la proportion observée diffère de celle attendue théoriquement, en considérant un risque de 5~\% de prendre une mauvaise décision en rejetant l'hypothèse nulle.
+
+\end{frame}
+
+% ------------------------------------------------------------------- Slide --
+\begin{frame}[fragile]{}
+\bigskip
+
+<<>>=
+binom.test(4, 10)
+@   
+
+Le résultat suggère que cette séquence de Pile/Face n'est pas incompatible avec l'hypothèse d'équi-distribution des deux côtés de la pièce.
+
+\end{frame}
+
+\section{Comparaison de moyennes}
+
+% ------------------------------------------------------------------- Slide --
+\begin{frame}{Comparer deux moyennes}
+
+Le test de Student est un test paramétrique permet de tester si
+deux moyennes de groupe (indépendants ou appariés) peuvent être
+considérées comme significativement différentes en considérant un
+seuil d'erreur $\alpha$.  
+\medskip
+
+\textbf{Exemples d'application :} comparer un dosage biologique entre deux
+groupes de patients, comparer des mesures physiologiques avant et
+après traitement chez les mêmes patients.
+\medskip
+
+\textbf{Conditions d'application :} normalité des distributions parentes,
+homogénéité des variances, indépendance (dans le cas du test t pour
+échantillons indépendants).
+
+\end{frame}
+
+% ------------------------------------------------------------------- Slide --
+\begin{frame}{Formalisation}
+
+\begin{block}{Le test t de Student}\small
+La statistique de test est définie comme suit : $$
+t_{\text{obs}}=\frac{\bar x_1 - \bar
+x_2}{s_c\sqrt{\frac{1}{n_1}+\frac{1}{n_2}}}, $$ où les $\bar x_i$ et
+$n_i$ sont les moyennes et effectifs des deux échantillons, et
+$s_c=\left[\left((n_1-1)s^2_{x_1}+(n_2-1)s^2_{x_2}\right)/(n_1+n_2-2)\right]^{1/2}$
+est la \emph{variance commune}.
+
+Sous $H_0$, cette statistique de test suit une loi de Student à
+$n_1+n_2-2$ degrés de liberté.
+
+Un intervalle de confiance à $100(1-\alpha)$\% pour la différence
+$\bar x_1 - \bar x_2$ peut être construit comme suit : $$ \bar x_1 -
+\bar x_2\pm t_{\alpha,
+n_1+n_2-2}s_c\sqrt{\frac{1}{n_1}+\frac{1}{n_2}},$$
+avec $P(t<t_{\alpha,n_1+n_2-2})=1-\alpha/2$.
+\end{block}
+
+\end{frame}  
+
+% ------------------------------------------------------------------- Slide --
+{\setbeamercolor{bkg}{bg=verypalegrey}%
+\begin{frame}[fragile]{Exercices}
+
+\begin{enumerate}
+\item blabla
+\end{enumerate}
+
+\end{frame}
+}
+
+\section*{Références} 
+% ------------------------------------------------------------------- Slide --
+\begin{frame}[allowframebreaks]{Références} 
+
+\bibliographystyle{plainnat}
+\bibliography{refs}
+
+\end{frame}
+
+% ------------------------------------------------------------------- Slide --
+\begin{frame}[fragile]{Index des commandes}
+
+\printindex
+
+\end{frame}
+
+\end{document}
