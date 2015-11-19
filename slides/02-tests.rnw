@@ -45,7 +45,7 @@ trellis.par.set(ggplot2like(lwd = 2.5))
 \begin{frame}{Objectifs}
 
   
-Dans ce cours, on s'intéressera aux tests d'inférence simples visant à comparer des indices de tendance centrale calculés sur des données continues, des proportions, des mesures de concordance, estimés à partir de données observées à la suite d'un procédé d'échantillonnage.
+Dans ce cours, on s'intéressera aux tests d'inférence simples visant à comparer des indices de tendance centrale calculés sur des données continues et estimés à partir de données observées à la suite d'un procédé d'échantillonnage.
 \medskip
 
 On considèrera deux échantillons ou plus, indépendants ou non.
@@ -91,7 +91,7 @@ observé soit dû simplement au hasard de l'échantillonnage.
 
 \textbf{Risque de première et deuxième espèce :}
 
-Supposons que l'on est à prendre une décision concernant une hypothèse
+Supposons que l'on doive prendre une décision concernant une hypothèse
 nulle. Le fameux "risque alpha" (type I) est le risque de conclure à
 tort à l'existence d'un effet alors qu'en réalité ce dernier n'existe
 pas. 
@@ -125,6 +125,7 @@ Ces risques sont effectivement asymétriques :
   
 \end{frame}
 
+\section{Principes du test d'hypothèse nulle}
 
 % ------------------------------------------------------------------- Slide --
 \begin{frame}{Deux illustrations intuitives}
@@ -135,8 +136,8 @@ Statisticians are applied philosophers. Philosophers argue how many angels can d
 \end{quotation} 
 
 \begin{enumerate}
-\item Jeu de pile ou face  
 \item Expérience de biologie cellulaire
+\item Jeu de pile ou face  
 \end{enumerate}
 \end{frame}
 
@@ -176,7 +177,7 @@ Est-il possible d'évaluer la \textbf{plausibilité} d'un tel résultat ?
 
 \begin{itemize}
 \item Il nous faut un moyen de comparer l'effet de l'adjonction de vitamine E par rapport à la situation où les lots ne sont pas traités.
-\item Un test statistique judicieusement choisi nous permettra de tester l'invraisemblance d'une hypothèse, appelée hypothèse nulle et formulée dans un cadre hypothetico-déductif.  
+\item Un test statistique judicieusement choisi nous permettra de tester l'invraisemblance d'une hypothèse appelée "hypothèse nulle".  
 \end{itemize}
 
 \medskip
@@ -191,7 +192,7 @@ Celui-ci permet de confronter la valeur observée à celles pouvant résulter de
 
 \bigskip\bigskip
 
-Si la différence observée est suffisamment grande, et on considérera que c'est le cas s'il y a moins de 5~\% de chance d'observer un \textbf{résultat aussi extrême}, alors on concluera que celle-ci ne peut vraisemblablement pas être expliquée par de simples fluctuations d'échantillonnage et que les données observées ne sont pas compatibles avec l'\textbf{hypothèse nulle d'absence d'effet}, appelée $H_0$.
+Si la différence observée est suffisamment grande, et on considérera que c'est le cas s'il y a moins de \href{http://www.jerrydallal.com/LHSP/p05.htm}{5~\% de chance} d'observer un \textbf{résultat aussi extrême}, alors on concluera que celle-ci ne peut vraisemblablement pas être expliquée par de simples fluctuations d'échantillonnage et que les données observées ne sont pas compatibles avec l'\textbf{hypothèse nulle d'absence d'effet}, appelée $H_0$.
 \medskip
 
 On rejetera donc $H_0$ si la probabilité $p$ d'observer, du seul fait du hasard, une différence au moins aussi grande que celle observée entre les effets de A et B est inférieure à 5~\%. Le "petit p" représente cette probabilité et est appelé \textbf{degré de signification}.
@@ -232,10 +233,10 @@ D'un autre côté, il existe un risque $\beta$ de ne pas être en mesure de reje
 Soit $H_0$: "la vitamine E ne modifie pas la croissance des cultures". Sous $H_0$, les étiquettes "traité" ou "non traité" n'apportent acuune information du point de vue de la mesure considérée (tous les lots sont "échangeables").
 \medskip
 
-Il y a ${6 \choose 3} = 20$ manières de définir un groupe composé de 3 éléments pris parmi 6. Considérons la somme de l'ensemble des cellules développées dans les 3 lots définissant un même groupe. Appelons-la s. Ici, $s_{\text{obs}} = 121 + 118 + 110 = 349$.
+Il y a ${6 \choose 3} = 20$ manières de définir un groupe composé de 3 éléments pris parmi 6. Considérons la somme de l'ensemble des cellules développées dans les 3 lots définissant un même groupe. Appelons-la $s$. Ici, $s_{\text{obs}} = 121 + 118 + 110 = 349$.
 \medskip
 
-Quelles sont les valeurs possibles de s lorsque l'on recombine les lots pour former deux groupes indépendants ?
+Quelles sont les valeurs possibles de $s$ lorsque l'on recombine les lots pour former deux groupes indépendants ?
 
   
 \end{frame}
@@ -275,7 +276,7 @@ En fait, s prend les valeurs :
 \textbf{Conclusion :} Parmi les 20 résultats possibles, le résultat $s_{\text{obs}} = 349$ est le plus extrême et il y a exactement 1/20 = 5~\% de chances d'observer un résultat aussi extrême.
 \medskip
 
-Il est donc peu probable que les résultats observés (les trois premiers lots sont ceux qui ont été traités) puissent s'expliquer simplement par les fluctuations d'échantillonnage.
+Il est donc peu probable que les résultats observés ("les trois premiers lots sont ceux qui ont été traités") puissent s'expliquer simplement par les fluctuations d'échantillonnage.
 
 \end{frame}
 
@@ -283,14 +284,19 @@ Il est donc peu probable que les résultats observés (les trois premiers lots s
 \begin{frame}[fragile]{Pile ou face ?}
 
 On lance une pièce 10 fois et on observe la séquence de résultats suivants :
-
-P P P P F F F P F P
 \medskip
+
+\begin{center}
+P P P P F F F P F P
+\end{center}
+\bigskip\bigskip
 
 \textbf{Question générale :} la pièce est-elle truquée ?
 
 
 \end{frame}
+
+
 
 
 % ------------------------------------------------------------------- Slide --
@@ -314,10 +320,10 @@ P P P P F F F P F P
 \end{center}
 \medskip
 
-Si l'on suppose une pièce bien équilibrée et des lancers indépendants, le nombre attendu de "Face" est $10 x 0,5 = 5$. La fréquence observée de "Face" dans l'expérience est de $4/10 = 0.4$.
+Si l'on suppose une pièce bien équilibrée et des lancers indépendants, le nombre attendu de "Face" est $10\times 0,5 = 5$. La fréquence observée de "Face" dans l'expérience est de $4/10 = 0.4$.
 \medskip
 
-Nous pouvons formuler une hypothèse nulle selon laquelle $p = 0.5$, et l'hypothèse alternative est $p \neq 0.5$. En utilisant un \textbf{test binomial}, il est possible de vérifier si la proportion observée diffère de celle attendue théoriquement, en considérant un risque de 5~\% de prendre une mauvaise décision en rejetant l'hypothèse nulle.
+Nous pouvons formuler une hypothèse nulle selon laquelle $p = 0,5$, et l'hypothèse alternative est $p \neq 0,5$. En utilisant un \textbf{test binomial}, il est possible de vérifier si la proportion observée diffère de celle attendue théoriquement, en considérant un risque de 5~\% de prendre une mauvaise décision en rejetant l'hypothèse nulle.
 
 \end{frame}
 
@@ -333,12 +339,35 @@ Le résultat suggère que cette séquence de Pile/Face n'est pas incompatible av
 
 \end{frame}
 
-\section{Comparaison de moyennes}
+% ------------------------------------------------------------------- Slide --
+\begin{frame}[fragile]{Autres cadres de raisonnement}
+
+In sum, the idea is to confront a single hypothesis with the data, through a designed experiment, with falsification as the only "truth." This approach follows from Popper's philosophical development and was implemented by Fisher, and Neyman \& Pearson's \textbf{NHST framework} \citep{hilborn97}
+\medskip
+
+We would rather like to know $P(H_0\mid\text{data})$ than $P(|S|>|s|)$ under the null–even if \href{http://mark.reid.name/blog/the-earth-is-round.html}{the earth is round (p < .05)}.
+
+\end{frame}
+
+% ------------------------------------------------------------------- Slide --
+\begin{frame}[fragile]{}
+\bigskip
+
+\begin{itemize}
+\item \textbf{Likelihood approach :} Use the data to arbitrate between two models. Given the data and a mathematical formulation of two competing models, we can ask, "How likely are the data, given the model?"
+\item \textbf{Bayesian approach :} Use external information that allows to judge \emph{a priori} which model is more likely to be true, i.e. use a prior probability that can be "updated" to yield a posterior probability, given the data. 
+\end{itemize}
+
+References: \citep{ashby06} for a review in biomedical research, and \href{http://biostat.mc.vanderbilt.edu/wiki/pub/Main/FHHandouts/whyBayesian.pdf}{A Good P–value is Hard to Find: Why I’m a Bayesian When Time Allows} (FE Harrell Jr, 2013).  
+\end{frame}
+
+
+\section{Comparaison de deux moyennes}
 
 % ------------------------------------------------------------------- Slide --
 \begin{frame}{Comparer deux moyennes}
 
-Le test de Student est un test paramétrique permet de tester si
+Le test de Student est un test paramétrique permettant de tester si
 deux moyennes de groupe (indépendants ou appariés) peuvent être
 considérées comme significativement différentes en considérant un
 seuil d'erreur $\alpha$.  
@@ -368,7 +397,6 @@ est la \emph{variance commune}.
 
 Sous $H_0$, cette statistique de test suit une loi de Student à
 $n_1+n_2-2$ degrés de liberté.
-
 Un intervalle de confiance à $100(1-\alpha)$\% pour la différence
 $\bar x_1 - \bar x_2$ peut être construit comme suit : $$ \bar x_1 -
 \bar x_2\pm t_{\alpha,
@@ -379,11 +407,363 @@ avec $P(t<t_{\alpha,n_1+n_2-2})=1-\alpha/2$.
 \end{frame}  
 
 % ------------------------------------------------------------------- Slide --
+\begin{frame}[fragile]{Application}
+
+\textbf{Données sur les poids à la naissance} \citep{hosmer89}.
+
+<<>>=
+data(birthwt, package="MASS")
+birthwt$smoke <- factor(birthwt$smoke, 
+                        labels=c("No","Yes"))
+t.test(bwt ~ smoke, data=birthwt, var.equal=TRUE)
+@ 
+\indexfoo{factor}\indexfoo{t.test}
+%% On conclut à l'existence d'une différence entre les poids moyens des
+%% enfants des deux groupes de mère, $p<0.01$ ($\Delta=+284$ g $[73;495]$, en
+%% faveur des non-fumeurs).
+
+\end{frame}
+
+% ------------------------------------------------------------------- Slide --
+\begin{frame}[fragile]{}
+\bigskip\bigskip
+
+<<eval = 1>>=
+bwplot(smoke ~ bwt, data=birthwt)
+qqmath(~ bwt, data=birthwt, group=smoke)
+@ 
+\indexfoo{bwplot}\indexfoo{qqmath}
+\end{frame}
+
+% ------------------------------------------------------------------- Slide --
+\begin{frame}[fragile]{}
+\bigskip\bigskip
+
+<<out.width = ".5\\linewidth">>=
+bwplot(smoke ~ bwt, data=birthwt, 
+       panel = function(x, y, ...) {
+           panel.bwplot(x, y, ...)
+           panel.points(x, jitter(as.numeric(y), 
+                                  amount = .05), ...) })
+@ 
+\indexfoo{bwplot}
+\end{frame}
+
+
+% ------------------------------------------------------------------- Slide --
+\begin{frame}[fragile]{Cas des données non indépendantes}
+
+Dans le cas où les échantillons ne sont pas indépendants, p.~ex. sujets
+mesurés à deux reprises ou données appariées, le même type de test
+peut être utilisé, et la différence de moyennes est comparée à 0. On se retrouve dans la même situation que le \textbf{test de Student pour un échantillon} (comparaison à 0).
+\medskip
+
+Le plus souvent ce sont les mêmes unités statistiques qui servent de
+support à la comparaison, mais n'importe quelle forme d'appariement,
+pourvu qu'elle fasse sens, peut justifier le recours à un test
+apparié.
+
+\end{frame}
+
+% ------------------------------------------------------------------- Slide --
+\begin{frame}[fragile]{Formalisation}
+
+\begin{block}{Le test t de Student pour données appariées}\small
+Si l'on note les valeurs observées pour la $i$ème paire $x_{1i}$ et
+$x_{2i}$, la différence $d_i=x_{1i}-x_{2i}$ est supposée suivre une
+loi normale. L'hypothèse nulle est $\mu_d=0$. La statistique de test
+est donnée par :
+$$ t=\frac{\bar d_i}{s_d/\sqrt{n}} $$
+où $\bar d_i$ la différence moyenne, et $s_d$ est la déviation
+standard de $d_i$. Ici, on peut exploiter la
+corrélation intra-unité car si $X_1$ et $X_2$ ne sont pas
+indépendants, alors on sait que
+$\mathbb{V}(X_1-X_2)=\mathbb{V}(X_1)+\mathbb{V}(X_2)-2\text{Cov}(X_1,X_2).$
+Cette statistique de test suit alors une loi de Student à $n-1$ degrés de liberté.
+Un intervalle de confiance à $100(1-\alpha)$\% pour la différence
+$d_i$ peut être construit comme suit : $$ \bar d_i\pm t_{\alpha,
+n-1}s_d/n,$$
+avec $P(t<t_{\alpha,n-1})=1-\alpha/2$.
+\end{block}
+
+\end{frame}
+
+% ------------------------------------------------------------------- Slide --
+\begin{frame}[fragile]{Application}
+
+\textbf{Effet de somnifères sur le temps de sommeil} \citep{student08}.
+
+<<>>=
+t.test(extra ~ group, data=sleep, paired=TRUE)
+@   
+\indexfoo{t.test}
+
+On constate une diminution de la durée de sommeil lorsque le
+médicament 1 est administré ($\Delta=-1.6$ h $[-2.5;-0.7]$,
+$p<0.01$). 
+
+\end{frame}
+
+
+% ------------------------------------------------------------------- Slide --
+\begin{frame}[fragile]{Application}
+
+On peut utiliser un diagramme de dispersion, de Tukey (\texttt{tmd()}) ou de
+Bland-Altman \citep{altman83}.
+
+<<out.width = ".5\\linewidth">>=
+xyplot(extra[group==2] ~ extra[group==1], data = sleep, 
+       type = c("p", "g"), aspect = "iso", 
+       abline = list(a = 0, b = 1))
+@   
+\indexfoo{xyplot}
+\end{frame}
+
+% ------------------------------------------------------------------- Slide --
+\begin{frame}[fragile]{Alternative non paramétrique}
+
+Dans le test t, on fait une hypothèse sur la nature de la distribution
+de la réponse mesurée dans la population parente. Si l'on relaxe cette
+hypothèse et que l'on exige simplement que les échantillons
+proviennent de populations ayant des distribution à peu près
+comparables en terme de forme, alors on peut utiliser des tests dits
+non-paramétriques. Dans le cadre de la comparaison de la tendance
+centrale de deux échantillons, l'alternative au test t est le \textbf{test de
+Wilcoxon} (\texttt{wilcox.test()}). 
+\medskip
+
+Ce type de test est souvent utilisé dans le cas des petits effectifs
+lorsque les données disponibles ne permettent pas réellement de
+vérifier la normalité des distributions parentes, comme dans le test
+t. On retiendra toutefois que le test de Wilcoxon a une puissance
+relative de 80~\% par rapport au test de Student. Ce type de test
+présente en outre l'avantage d'être moins sensible à la présence de
+valeurs extrêmes.
+
+\end{frame}
+
+% ------------------------------------------------------------------- Slide --
+\begin{frame}[fragile]{Formalisation}
+
+\begin{block}{Le test des rangs de (Mann-Whitney-)Wilcoxon}\small
+L'hypothèse nulle est que les deux échantillons comparés proviennent
+de deux distributions ayant le même paramètre de position. 
+La statistique de test est construite comme la plus petite somme des
+rangs d'un des deux échantillons ; quand $n_1,\,n_2>15$ et qu'il n'y a
+pas d'ex-\ae quo, on a l'approximation suivante pour La
+statistique de test : $$
+Z=\frac{S-n_1(n_1+n_2+1)/2}{\sqrt{n_1n_2(n_1+n_2+1)/12}}\sim
+\mathcal{N}(0;1),$$ où $S$ est la statistique de test pour
+l'échantillon de taille $n_1$.
+
+Pour deux échantillons appariés, le test des rangs signés est utilisé
+: on calcule la somme $T^+$ des rangs des différences
+$z_i=x_{1i}-x_{2i}$ en valeurs absolues positifs ; dans le cadre
+asymptotique, la statistique de test correspondante est : $
+Z=\frac{T^+-n(n+1)/4}{\sqrt{n(n+1)(2n+1)/24}}\sim\mathcal{N}(0;1). $
+
+\end{block}
+\end{frame}
+
+
+% ------------------------------------------------------------------- Slide --
 {\setbeamercolor{bkg}{bg=verypalegrey}%
 \begin{frame}[fragile]{Exercices}
 
 \begin{enumerate}
-\item blabla
+\item Simuler répétitivement une différence de moyennes empiriques pour deux échantillons tirés aléatoirement parmi des populations de paramètres (moyenne et variance) fixes, et représenter graphiquement la distribution de ces différences de moyennes (\texttt{rnorm()}, \texttt{replicate()}).
+\item À partir de l'étude "Framingham" \citep{levy99,dupont09} (\texttt{Framingham.csv}), réaliser un test de Student comparant la pression systolique moyenne entre les personnes ayant un âge inférieur ou égal à l'âge médian \emph{versus} celles ayant un âge supérieur à l'âge médian.
+\item Faire une représentation graphique des données. Comparer avec un test de Wilcoxon.  
+\end{enumerate}
+
+\end{frame}
+}
+
+\section{Analyse de la variance}
+
+% ------------------------------------------------------------------- Slide --
+\begin{frame}[fragile]{Comparer plus de deux moyennes}
+
+L'ANOVA constitue une extension naturelle au cas où plus de deux
+moyennes de groupe sont à comparer. Avec $k$ échantillons,
+l'hypothèse nulle se lit : $$ H_0:\ \mu_1=\mu_2=\ldots=\mu_k, $$ alors
+que l'alternative est l'existence d'au moins une paire de moyennes qui
+diffèrent (négation logique de $H_0$).  Si l'on exprime chaque
+observation comme une déviation par rapport à sa propre moyenne de
+groupe, $y_{ij}=\bar y_i+\varepsilon_{ij}$, on voit que la variabilité
+totale peut se décomposer comme suit : $$\underbrace{(y_{ij}-\bar
+y)}_{\text{totale}}=\underbrace{(\bar y_{i\phantom{j}}\hskip-.5ex-\bar
+y)}_{\text{groupe}} + \underbrace{(y_{ij}-\bar y_i)}_{\text{résiduelle}}.$$
+	
+\textbf{Conditions d'application :} normalité des distributions parentes
+  pour chaque groupe, homogénéité des variances, indépendance des
+  observations. 
+
+\end{frame}
+
+
+
+% ------------------------------------------------------------------- Slide --
+\begin{frame}[fragile]{}
+
+\bigskip\bigskip
+  
+Supposons trois groupes indépendants. Voici quelques scénarios
+imaginaires concernant la distribution des scores individuels :
+
+\centerline{\includegraphics[width=.8\textwidth]{./figs/anova.pdf}}  
+
+
+\end{frame}
+
+% ------------------------------------------------------------------- Slide --
+\begin{frame}[fragile]{Décomposition de la variance}
+On peut résumer les sources de variations observées au niveau de la
+variable réponse comme suit :
+\medskip
+
+\begin{center}
+\resizebox{.75\textwidth}{!}{\begin{tabular}{lllll}
+\hline
+Source & SC & dl & CM & F \\
+\hline
+Inter (B) & $\sum_{i=1}^kn_i(\bar y_i-\bar y)^2$ & $k-1$ & $\text{SC}_b$/dl (1)
+& (1)/(2) \\
+Intra (W) & $\sum_{i=1}^k\sum_{j=1}^{n_i}(y_{ij}-\bar y_i)^2$ & $N-k$ &
+$\text{SC}_w$/dl (2) & \\
+Total & $\sum_{i=1}^k\sum_{j=1}^{n_i}(y_{ij}-\bar y)^2$ & $N-1$ & \\
+\hline
+\multicolumn{5}{l}{\small (SC = somme de carrés, CM = carré moyen)} \\
+\end{tabular}}
+\end{center}
+
+On rappelle qu'une variance se calcule comme la somme des écarts
+quadratiques à la moyenne, i.e. $\sum_j (y_j-\bar y)^2/(n-1)$. 
+\medskip
+
+La $SC_b$ représente la variance des moyennes de groupe (fluctuation
+autour de la moyenne générale), et la $SC_w$ ("résiduelle") représente
+la moyenne des variances des mesures individuelles autour de la
+moyenne de groupe (dans les deux cas, les moyennes sont pondérées).
+
+\end{frame}
+
+
+% ------------------------------------------------------------------- Slide --
+\begin{frame}[fragile]{Application}
+
+\textbf{Polymorphisme et gène du récepteur estrogène} \citep{dupont09}.
+
+<<>>=
+library(foreign)
+d <- read.dta("../data/polymorphism.dta")
+head(d)
+xtabs(~ genotype, data = d)
+@ 
+\indexfoo{library}\indexfoo{read.dta}\indexfoo{head}
+\end{frame}
+
+% ------------------------------------------------------------------- Slide --
+\begin{frame}[fragile]{}
+
+\bigskip
+
+<<eval = 1:3>>=
+summary(d)
+fm <- age ~ genotype
+aggregate(fm, data = d, mean)
+aggregate(fm, data = d, Hmisc::smean.sd)
+@ 
+\indexfoo{summary}\indexfoo{aggregate}
+\end{frame}
+
+% ------------------------------------------------------------------- Slide --
+\begin{frame}[fragile]{}
+
+\bigskip
+
+<<>>=
+bwplot(fm, data = d)
+@ 
+\indexfoo{bwplot}
+\end{frame}
+
+% ------------------------------------------------------------------- Slide --
+\begin{frame}[fragile]{}
+
+\bigskip
+
+<<>>=
+m <- aov(fm, data = d)
+summary(m)
+@ 
+\indexfoo{aov}\indexfoo{summary}
+
+\medskip
+
+Le test F indique que l'on peut rejeter l'hypothèse nulle d'absence de
+différence d'âge entre les trois génotypes. Il est
+possible d'utiliser le rapport $2316/(2316+8246)=0,219$ ($\eta^2$) pour
+quantifier la \textbf{part de variance expliquée}. On pourrait poser la question de
+savoir quelles paires de moyennes diffèrent significativement
+(comparaisons post-hoc).
+
+\end{frame}
+
+% ------------------------------------------------------------------- Slide --
+\begin{frame}[fragile]{}
+
+\bigskip
+
+<<>>=
+model.tables(m)
+@ 
+\indexfoo{model.tables}
+\medskip
+
+\centerline{\includegraphics[width=.7\textwidth]{./figs/anova2.pdf}}  
+
+\end{frame}
+
+% ------------------------------------------------------------------- Slide --
+\begin{frame}[fragile]{Diagnostic du modèle}
+
+Essentiellement, il faut vérifier la distribution des résidus
+\begin{itemize}
+\item à l'aide d'un QQ plot (\textbf{normalité des résidus}) ;
+\item selon les valeurs prédites (\textbf{homoscédasticité}).
+\end{itemize}
+
+<<out.width = ".5\\linewidth">>=
+rfs(m)
+@ 
+\indexfoo{rfs}
+\end{frame}
+
+% ------------------------------------------------------------------- Slide --
+\begin{frame}[fragile]{Représentation graphique}
+
+Les diagrammes en barres ne sont pas très économes en termes de
+"data-ink ratio". On peut leur préferer des diagrammes en points \citep{cleveland93}, générés à partir de \texttt{dotplot()} ou \texttt{segplot()} (\pkg{latticeExtra}).
+\medskip
+
+\textbf{Idée :} représenter l'âge moyen par génotype et un indicateur de la variabilité autour de cet âge moyen.
+\medskip
+
+Quel indicateur choisir ?
+
+
+\end{frame}
+
+
+% ------------------------------------------------------------------- Slide --
+{\setbeamercolor{bkg}{bg=verypalegrey}%
+\begin{frame}[fragile]{Exercices}
+
+\begin{enumerate}
+\item Calculer des intervalles de confiance à 95~\% pour les 3 moyennes de groupe en utilisant la variance commune de l'ANOVA ou d'un test de Student. Comparer avec les IC à 95~\% reposant sur une loi normale (\texttt{qnorm(0.975)}).  
+\item Réaliser un test de Student pour comparer les deux groupes homozygotes et comparer le résultat à une ANOVA incluant le facteur \texttt{genotype} mais restreint à ces deux mêmes groupes (cf. \texttt{subset=}).
+\item Réaliser des comparaisons de l'ensemble des paires de moyennes à l'aide de tests de Student. Arrive-t-on à la même conclusion concernant les différences observées. Comparer avec les résultats produits par \texttt{pairwise.t.test()}.
 \end{enumerate}
 
 \end{frame}
