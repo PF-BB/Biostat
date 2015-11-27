@@ -11,8 +11,8 @@ Les jeux de données utilisés sont disponibles dans le répertoire [data](data/
 (dans les grandes lignes pour les 5 premières séances)
 
 1. Représentation et gestion des données : [slides](slides/01-datasteps.pdf) | [R code](slides/01-datasteps.R)
-2. Comparaison pour deux groupes, ANOVA à un ou deux facteurs, puissance statistique
-3. Corrélation et régression linéaire, analyse de covariance
+2. Comparaison pour deux groupes, ANOVA à un facteur : [slides](slides/02-tests.pdf) | [R code](slides/02-tests.R)
+3. Corrélation et régression linéaire, analyse de covariance : [slides](slides/03-linear-model.pdf) | [R code](slides/03-linear-model.r)
 4. ANOVA à mesures répétées et modèles à effets aléatoires
 5. Modèle linéaire généralisé, tests diagnostiques
 
