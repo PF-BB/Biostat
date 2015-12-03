@@ -12,9 +12,9 @@ Les jeux de données utilisés sont disponibles dans le répertoire [data](data/
 
 1. Représentation et gestion des données : [slides](slides/01-datasteps.pdf) | [R code](slides/01-datasteps.R)
 2. Comparaison pour deux groupes, ANOVA à un facteur : [slides](slides/02-tests.pdf) | [R code](slides/02-tests.R)
-3. Corrélation et régression linéaire, analyse de covariance : [slides](slides/03-linear-model.pdf) | [R code](slides/03-linear-model.r)
-4. ANOVA à mesures répétées et modèles à effets aléatoires
-5. Modèle linéaire généralisé, tests diagnostiques
+3. Corrélation et régression linéaire, analyse de covariance, ANOVA à mesures répétées et modèles à effets aléatoires : [slides](slides/03-linear-model.pdf) | [R code](slides/03-linear-model.r)
+4. Régression logistique et modèles multivariés : [slides](slides/04-logistic.pdf) | [R code](slides/04-logistic.r)
+
 
 ## Références
 
