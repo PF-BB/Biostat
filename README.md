@@ -8,12 +8,11 @@ Les jeux de données utilisés sont disponibles dans le répertoire [data](data/
 
 ## Plan du cours
 
-(dans les grandes lignes pour les 5 premières séances)
-
 1. Représentation et gestion des données : [slides](slides/01-datasteps.pdf) | [R code](slides/01-datasteps.R)
 2. Comparaison pour deux groupes, ANOVA à un facteur : [slides](slides/02-tests.pdf) | [R code](slides/02-tests.R)
-3. Corrélation et régression linéaire, analyse de covariance, ANOVA à mesures répétées et modèles à effets aléatoires : [slides](slides/03-linear-model.pdf) | [R code](slides/03-linear-model.r)
+3. Corrélation et régression linéaire, analyse de covariance : [slides](slides/03-linear-model.pdf) | [R code](slides/03-linear-model.r)
 4. Régression logistique et modèles multivariés : [slides](slides/04-logistic.pdf) | [R code](slides/04-logistic.r)
+5. Modèles à effets aléatoires : [slides](slides/05-mixmod.pdf) | [R code](slides/05-mixmod.R)
 
 
 ## Références
