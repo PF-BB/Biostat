@@ -1,0 +1,486 @@
+\documentclass[t,table]{beamer}
+\usepackage{../tex/slides}
+\setbeameroption{hide notes} 
+
+\title{Biostatistiques avancées avec R}
+\subtitle{Introduction aux modèles à effets aléatoires}
+\author{\myauthor}
+\institute{\myinstitute}
+\date{}
+
+\makeindex
+
+\input{vc}
+
+\begin{document}
+
+<<setup, include=FALSE, cache=FALSE>>=
+library(knitr)
+render_sweave()
+opts_chunk$set(size = "small", fig.path = 'figs/05-', dev = "cairo_pdf", 
+               dev.args = list(family = "Bitstream Vera Sans"),
+               fig.width = 5, fig.height = 5, 
+               out.width = ".6\\linewidth", fig.align = "center",
+               message=FALSE)
+opts_knit$set(progress = FALSE, verbose = FALSE) 
+options(digits = 3, width = 70)
+library(latticeExtra)
+@
+
+% ------------------------------------------------------------------- Slide --
+{\setbeamertemplate{footline}{}\frame{\titlepage}}
+
+
+\section*{Synopsis}
+% ------------------------------------------------------------------- Slide --
+\begin{frame}{Synopsis}
+  \tableofcontents
+\end{frame}      
+
+\section{Éléments de contexte}
+% ------------------------------------------------------------------- Slide --
+\begin{frame}{Tour d'horizon}
+
+\bigskip
+\centerline{\includegraphics[width=.8\textwidth]{./figs/models.pdf}}
+
+\end{frame}
+
+
+% ------------------------------------------------------------------- Slide --
+\begin{frame}{Types de modèles}
+
+Par rapport au modèle linéaire (généralisé), les modèles à effets mixtes permettent d'introduire des termes ou effets aléatoires permettant de modéliser la corrélation entre les unités statistiques. 
+\medskip
+
+Les modèles hiérarchiques ou multi-niveaux prennent en compte le regroupement des individus en unités homogènes (e.g., étudiants dans des classes), la corrélation intraclasse (e.g., données longitudinales) ou un mélange des deux (e.g., performance au cours du temps pour différents groupes de sujets) \citep{mcculloch01,lindsey99,raudenbush02,gelman07,fitzmaurice09}.
+\medskip
+
+\textbf{Deux types d'approche :} modèles conditionnels (typiquement, les modèles mixtes) et modèles marginaux (e.g., GLS, GEE). Dans le second cas, on cherche plutôt à modéliser un effet moyen (population) à partir d'une matrice de corrélation intra-unité pré-définie.
+  
+\end{frame}
+
+% ------------------------------------------------------------------- Slide --
+\begin{frame}{Effets fixes \emph{versus} aléatoires}
+
+Peu de définitions consensuelles \citep{gelman05}, mais on peut se demander si l'on souhaite simplement estimer les paramètres des termes aléatoires ou dériver des prédictions au niveau individuel \citep{vittinghoff05}.
+\medskip
+
+\centerline{\includegraphics[width=.6\textwidth]{./figs/random_vs_fixed.pdf}}
+  
+\end{frame}
+
+\section{Tests de Student pour échantillons appariés}
+% ------------------------------------------------------------------- Slide --
+\begin{frame}[fragile]{Comparaison de moyennes}
+
+\textbf{Effet de somnifères sur le temps de sommeil} \citep{student08}.
+
+<<>>=
+data(sleep)
+t.test(extra ~ group, data = sleep)
+@ 
+\indexfoo{data}\indexfoo{t.test}  
+\end{frame}  
+
+% ------------------------------------------------------------------- Slide --
+\begin{frame}[fragile]{}
+\bigskip
+
+<<>>=
+t.test(extra ~ group, data = sleep, paired = TRUE)
+@ 
+\indexfoo{t.test}
+Ignorer la corrélation intra-unité résulte généralement en un test moins puissant.
+\end{frame}  
+
+% ------------------------------------------------------------------- Slide --
+\begin{frame}[fragile]{}
+\bigskip
+
+Pourquoi une telle perte de puissance ?
+\medskip
+
+On sait que 
+\[
+  \text{Var}(X_1-X_2)=\text{Var}(X_1)+\text{Var}(X_2)-2\text{Cov}(X_1,X_2),
+\]
+avec $\text{Cov}(X_1,X_2)=\rho\sqrt{\text{Var}(X_1)}\sqrt{\text{Var}(X_2)}$.
+\medskip
+
+Si l'on suppose $\text{Cov}(X_1,X_2)=0$, cela revient à sur-estimer la variance des différences (le test de Student pour échantillons appariés est essentiellement un problème à un échantillon) puisque $\text{Cov}(X_1,X_2)$ sera généralement $>0$.
+\medskip
+
+<<eval=FALSE>>=
+xyplot(extra ~ group, sleep, groups = ID, type = "a")
+@ 
+\indexfoo{xyplot}
+
+\end{frame}
+
+\section{Analyse de variance et mesures répétées}
+% ------------------------------------------------------------------- Slide --
+\begin{frame}[fragile]{Données d'illustration}
+
+\textbf{Enzyme digestive et problèmes intestinaux} \citep{vittinghoff05}.
+
+\begin{center}
+  \begin{tabular}{crrrrr}
+    \hline
+    ID & \multicolumn{4}{c}{Pill type} & Average\\
+    \cline{2-5}
+    & None & Tablet & Capsule & Coated & \\
+    \hline
+    1 & 44.5 & 7.3 & 3.4 & 12.4 & 16.9 \\
+    2 & 33.0 & 21.0 & 23.1 & 25.4 & 25.6 \\
+    3 & 19.1 & 5.0 & 11.8 & 22.0 & 14.5 \\
+    4 & 9.4 & 4.6 & 4.6 & 5.8 & 6.1 \\
+    5 & 71.3 & 23.3 & 25.6 & 68.2 & 47.1 \\
+    6 & 51.2 & 38.0 & 36.0 & 52.6 & 44.5 \\
+    Average & 38.1 & 16.5 & 17.4 & 31.1 & 25.8 \\
+    \hline
+  \end{tabular}
+\end{center}
+
+\end{frame}
+
+% ------------------------------------------------------------------- Slide --
+\begin{frame}[fragile]{}
+\bigskip
+
+Format large ("wide") $\leftrightarrow$ long
+<<>>=
+labs <- c("None","Tablet","Capsule","Coated")
+fat <- data.frame(fecfat = c(44.5,33.0,19.1,9.4,71.3,51.2,
+                            7.3,21.0,5.0,4.6,23.3,38.0,
+                            3.4,23.1,11.8,4.6,25.6,36.0,
+                            12.4,25.4,22.0,5.8,68.2,52.6),
+                 pilltype = gl(4, 6, labels=labs),
+                 subject = gl(6, 1))
+head(fat)
+@ 
+\end{frame}
+
+% ------------------------------------------------------------------- Slide --
+\begin{frame}[fragile]{Composantes de variance}
+
+Il n'y a qu'un seul prédicteur ("Pill type") qui reflète le lien entre le facteur sujet et le temps d'administration (équivalent aux différents produits administrés séquentiellement).
+\medskip
+
+Différentes façons de \textbf{décomposer la variance totale}:
+\begin{enumerate}
+\item ANOVA à un facteur : aov(fecfat ~ pilltype, data=fat)
+\item ANOVA à deux facteurs : aov(fecfat ~ pilltype + subject, data=fat)
+\item ANOVA à mesures répétées : aov(fecfat ~ pilltype + \textbf{Error(subject)}, data=fat)
+\end{enumerate}
+\indexfoo{aov}  
+  
+\end{frame}
+
+% ------------------------------------------------------------------- Slide --
+\begin{frame}[fragile]{Tableaux d'ANOVA}
+
+\begin{center}
+  \begin{tabular}{lrrrrr}
+  \hline
+    Source & DF & SS & MS & M1 & M2$^\star$/M3 \\
+    \hline
+    pilltype & 3 & 2009 & 669.5 & 669.5/359.7 &
+                                                669.5/107.0\\
+           & & & & p=0.169& p=0.006\\
+    subject & 5 & 5588 & 1117.7 & ---\kern5ex & 1117.7/107.0 \\
+           & & & & & p=0.000$^\star$\\
+    Residuals & 15 & 1605 & 107.0 & ---\kern5ex & ---\kern5ex \\
+    \hline
+  \end{tabular}
+\end{center}
+\bigskip
+
+Le 1\ier modèle qui suppose des observations indépendantes n'enlève pas la variance entre sujets qui représente environ 78~\% de la résiduelle.
+\medskip
+
+Les deux autres modèles incorporent des effets spécifiques aux sujets:
+\[
+ y_{ij} = \mu + \text{subject}_i + \text{pilltype}_j + \varepsilon_{ij},\quad \varepsilon_{ij}\sim{\mathcal N}(0,\sigma_{\varepsilon}^2). 
+\]
+\end{frame}
+
+% ------------------------------------------------------------------- Slide --
+\begin{frame}[fragile]{}
+
+Dans le 3\ieme modèle, on suppose en plus que $\text{subject}_i\sim{\mathcal N}(0,\sigma_{s}^2)$,
+indépendant de $\varepsilon_{ij}$.
+\medskip
+
+L'inclusion d'un effet aléatoire spécifique aux individus permet de modéliser différents types de structure de corrélation intra-unité.
+\medskip
+
+\textbf{Corrélation entre les mesures:}
+\[
+  \text{Cor}(y_{ij},y_{ik})=\frac{\text{Cov}(y_{ij},y_{ik})}{\sqrt{\text{Var}(y_{ij})}\sqrt{\text{Var}(y_{ik})}}.
+\]
+Puisque $\mu$ et $\text{pilltype}$ sont fixes, et que $\varepsilon_{ij}\perp subject_i$, on a :
+\begin{align*}
+\text{Cov}(y_{ij},y_{ik}) & = \text{Cov}(subject_i,subject_i) \\
+& = \text{Var}(subject_i) \\
+& = \sigma_{s}^2,
+\end{align*}
+d'où $\text{Var}(y_{ij})=\text{Var}(\text{subject}_i)+\text{Var}(\varepsilon_{ij})=\sigma_{s}^2+\sigma_{\varepsilon}^2$ (pour chaque observation).
+\end{frame}
+
+% ------------------------------------------------------------------- Slide --
+\begin{frame}[fragile]{Corrélation intraclasse}
+
+On a donc
+\[
+ \text{Cor}(y_{ij},y_{ik})=\frac{\sigma_{s}^2}{\sigma_{s}^2+\sigma_{\varepsilon}^2} 
+\]
+qui représente la proportion de variance totale expliquée par le facteur \texttt{subject}. On appelle cette quantité le \textbf{coefficient de corrélation intraclasse}, $\rho$, et il représente la proximité des observations prises sur différents sujets (similarité intra-classe).
+\medskip
+
+En d'autres termes, la variabilité inter-individuelle augmente ou diminue simultanément toutes les mesures d'un même sujet.
+\end{frame}
+
+% ------------------------------------------------------------------- Slide --
+\begin{frame}[fragile]{Structure de variance-covariance}
+
+La structure de variance-covariance ($\sigma^2=\sigma_{s}^2+\sigma_{\varepsilon}^2$) dans le modèle précédent (modèle à "intercept" aléatoire) est appelée structure de symétrie composée.
+
+\[
+  \begin{bmatrix}
+    \sigma_{s}^2+\sigma_{\varepsilon}^2 & \sigma_{s}^2 & \sigma_{s}^2 & \sigma_{s}^2 \\
+    \sigma_{s}^2 & \sigma_{s}^2+\sigma_{\varepsilon}^2 & \sigma_{s}^2 & \sigma_{s}^2 \\
+    \sigma_{s}^2 & \sigma_{s}^2 & \sigma_{s}^2+\sigma_{\varepsilon}^2 & \sigma_{s}^2 \\
+    \sigma_{s}^2 & \sigma_{s}^2 & \sigma_{s}^2 & \sigma_{s}^2+\sigma_{\varepsilon}^2
+  \end{bmatrix} = \sigma^2
+  \begin{bmatrix}
+    1 & \rho & \dots & \rho \\
+    \rho & 1 & & \rho \\
+    \vdots & & \ddots & \vdots \\
+    \rho & \rho & \dots & 1 
+  \end{bmatrix}
+\]
+  
+Les observations d'un même sujet sont modélisées comme étant corrélées \emph{via} leur effet aléatoire partagé.
+
+\end{frame}
+
+\section{Modèles à effet aléatoires}
+% ------------------------------------------------------------------- Slide --
+\begin{frame}[fragile]{Estimation de $rho$}
+
+Modèle à intercept aléatoire:
+<<>>=
+library(nlme)
+m <- lme(fecfat ~ pilltype, data = fat, 
+         random = ~ 1 | subject)
+anova(m)
+@   
+\indexfoo{library}\indexfoo{lme}\indexfoo{anova}
+\end{frame}
+
+% ------------------------------------------------------------------- Slide --
+\begin{frame}[fragile]{}
+\bigskip
+
+<<>>=
+intervals(m, which = "var-cov")
+@ 
+\indexfoo{intervals}
+\bigskip
+
+\textbf{Remarque:} Les effets alétoires sont estimés après avoir "supprimé" les effets fixes (méthode REML). Les tests sur les effets aléatoires ($H_0:\sigma^2=0$) par LRT sont conservateurs.
+\end{frame}
+
+% ------------------------------------------------------------------- Slide --
+\begin{frame}[fragile]{}
+\bigskip
+
+<<>>=
+VarCorr(m)
+sigma.s <- as.numeric(VarCorr(m)[1,2])
+sigma.eps <- as.numeric(VarCorr(m)[2,2])
+sigma.s^2 / (sigma.s^2 + sigma.eps^2)
+@ 
+\indexfoo{VarCorr}\indexfoo{as.numeric}
+
+\end{frame}
+
+% ------------------------------------------------------------------- Slide --
+\begin{frame}[fragile]{Approche par l'ANOVA}
+On peut retrouver les composantes de variance (sujets + résiduelle) à partir d'un tableau d'ANOVA.
+
+<<>>=
+ms <- anova(lm(fecfat ~ pilltype + subject,
+               data=fat))[[3]]
+vs <- (ms[2] - ms[3]) / nlevels(fat$pilltype)
+vr <- ms[3]
+vs / (vs + vr)
+@ 
+\indexfoo{anova}\indexfoo{nlevels}  
+\end{frame}
+
+% ------------------------------------------------------------------- Slide --
+\begin{frame}[fragile]{Approche par GLS}
+Enfin, on peut imposer une structure de symétrie composée pour la corrélation des erreurs \emph{via} un modèle de type GLS :
+
+<<eval = c(1,3)>>=
+gls.fit <- gls(fecfat ~ pilltype, data=fat,
+              corr=corCompSymm(form= ~ 1 | subject))
+anova(gls.fit)
+intervals(gls.fit, which = "var-cov")
+@
+\indexfoo{gls}\indexfoo{anova}\indexfoo{intervals}  
+\end{frame}
+
+% ------------------------------------------------------------------- Slide --
+\begin{frame}[fragile]{}
+\bigskip
+
+<<eval = FALSE>>=
+fat$pred <- predict(m)
+p1 <- xyplot(fecfat ~ reorder(pilltype, fecfat), data=fat,
+            groups=subject, type="a", xlab="Pill type",
+            ylab="Fecal fat (g/day)",
+            scales=list(y=list(at=seq(0, 80, by=20))),
+            par.settings = ggplot2like(),
+            axis = axis.grid)
+p2 <- xyplot(pred ~ reorder(pilltype, fecfat), data=fat,
+            groups=subject, type="a", xlab="Pill type",
+            ylab="Predicted fecal fat (g/day)",
+            scales=list(y=list(at=seq(0, 80, by=20))),
+            par.settings = ggplot2like(),
+            axis = axis.grid)
+gridExtra::grid.arrange(p1, p2)
+@   
+\end{frame}
+
+% ------------------------------------------------------------------- Slide --
+\begin{frame}[fragile]{}
+\bigskip
+
+\centerline{\includegraphics[width=.8\textwidth]{./figs/pred_lme.pdf}}
+
+\end{frame}
+
+% ------------------------------------------------------------------- Slide --
+\begin{frame}[fragile]{Mesures répétées et intercept aléatoire}
+
+Pour un plan d'expérience équilibré, la variance résiduelle d'une ANOVA à mesures répétées sera identique à celle d'un modèle à intercept aléatoire (l'estimateur REML est équivalent aux CM estimés dans l'ANOVA).
+\medskip
+
+Pour tester la significativité des effets fixes, on peut utiliser des tests F (ANOVA), du bootstrap \citep{faraway06} ou des tests du rapport de vraisemblance (LRT). Dans le dernier cas, il est nécessaire d'estimer les modèles par maximum de vraisemblance.
+
+<<>>=
+m <- update(m, method = "ML")
+m0 <- update(m, fixed = . ~ - pilltype)
+anova(m, m0)
+@ 
+\indexfoo{update}\indexfoo{anova}
+\end{frame}
+
+% ------------------------------------------------------------------- Slide --
+\begin{frame}{Structures de variance-covariance alternatives} 
+Il est possible de spécifier d'autres matrices de variance-co\-variance, selon le type de design \citep{pinheiro00} : non structurée, auto-régressive (ordre 1), bande diagonale, AR(1) avec variance hétérogène.
+\medskip
+
+Le modèle à intercept aléatoire permet de contraindre la matrice VC. Dans le cas des ANOVA à mesures répétées, la stratégie consiste à appliquer une correction de Greenhouse-Geisser ou Huynh-Feldt pour corriger les violations à l'hypothèse de symétrie composée, ou alors d'utiliser une MANOVA (moins puissante) \citep{abdi10,zar98}.
+\medskip
+
+Cependant, les modèles à effets alétoires ou mixtes restent plus souples d'utilisation et permettent de former des inférences sur la structure VC et de réaliser des comparaisons de modèles.
+\end{frame}
+
+\section{Modèles pour données longitudinales}
+% ------------------------------------------------------------------- Slide --
+\begin{frame}{Données d'illustration} 
+
+  Average reaction time per day for subjects in a sleep deprivation
+  study. On day 0 the subjects had their normal amount of sleep.
+  Starting that night they were restricted to 3 hours of sleep per
+  night.  The observations represent the average reaction time on a
+  series of tests given each day to each subject. D.~Bates,
+  Lausanne 2009, \url{http://bit.ly/Kj8VVj]}.  
+  
+\centerline{\includegraphics[width=.7\textwidth]{./figs/sleepstudy.pdf}}  
+
+\end{frame}
+
+% ------------------------------------------------------------------- Slide --
+\begin{frame}[fragile]{Modèle OLS classique} 
+
+<<>>=
+library(lme4)
+data(sleepstudy)
+reg.subj <- lmList(Reaction ~ Days | Subject, sleepstudy)
+reg.subj.df <- data.frame(lapply(reg.subj, coef))
+apply(reg.subj.df, 1, quantile, prob = c(.25, .75))
+coef(lm(Reaction ~ Days, data = sleepstudy))
+@ 
+\indexfoo{library}\indexfoo{data}\indexfoo{lmList}\indexfoo{data.frame}\indexfoo{apply}\indexfoo{quantile}\indexfoo{coef}  
+\end{frame}
+
+% ------------------------------------------------------------------- Slide --
+\begin{frame}[fragile]{} 
+\bigskip
+
+\centerline{\includegraphics[width=.8\textwidth]{./figs/sleepstudy2.pdf}}
+  
+\end{frame}
+
+% ------------------------------------------------------------------- Slide --
+\begin{frame}[fragile]{Modèles plausibles} 
+
+Voici une liste de modèles incorporant un ou plusieurs effets aléatoires susceptibles de rendre compte de la corrélation des mesures intra-unité:
+\begin{enumerate}
+\item Modèle à intercept aléatoire : Reaction ~ Days + \textbf{(1 | Subject)}
+\item Modèle à intercept et pente aléatoires : Reaction ~ Days + \textbf{(Days | Subject)}
+\item Modèle à effets aléatoires non corrélés : Reaction ~ Days + (1 | Subject) + (0 + Days | Subject)
+\end{enumerate}
+
+\end{frame}
+
+% ------------------------------------------------------------------- Slide --
+\begin{frame}[fragile]{} 
+\bigskip
+Utilisation de la fonction \texttt{lme4::lmer}:
+<<echo=FALSE>>=
+lme.mod1 <- lmer(Reaction ~ Days + (1 | Subject), data=sleepstudy)
+lme.mod2 <- lmer(Reaction ~ Days + (Days | Subject), data=sleepstudy)
+lme.mod3 <- lmer(Reaction ~ Days + (1 | Subject) + (0 + Days | Subject), data=sleepstudy)
+@ 
+
+<<>>=
+anova(lme.mod1, lme.mod2, lme.mod3) 
+@ 
+\indexfoo{lmer}\indexfoo{anova}
+\end{frame}
+
+% ------------------------------------------------------------------- Slide --
+\begin{frame}[fragile]{Prédictions} 
+Dans un modèle à effets aléatoires, les coefficients de régression associés aux termes aléatoires ne sont plus des paramètres et ne peuvent être estimés comme dans le cas du modèle OLS. De plus, leur espérance mathématique vaut 0. 
+\medskip
+
+Cependant, on peut utiliser la distribution \emph{a posteriori} (approche bayésienne). En combinant les modes conditionnels des effets aléatoires et les paramètres estimés pour les effets fixes, on obtient les \textbf{modes conditionnels des coefficients intra-sujet}.
+
+
+
+  
+\end{frame}  
+
+\section*{Références} 
+% ------------------------------------------------------------------- Slide --
+\begin{frame}[allowframebreaks]{Références} 
+
+\bibliographystyle{plainnat}
+\bibliography{refs}
+
+\end{frame}
+
+% ------------------------------------------------------------------- Slide --
+\begin{frame}[fragile]{Index des commandes}
+
+\printindex
+
+\end{frame}
+
+\end{document}
