@@ -21,7 +21,7 @@ opts_chunk$set(size = "small", fig.path = 'figs/05-', dev = "cairo_pdf",
                dev.args = list(family = "Bitstream Vera Sans"),
                fig.width = 5, fig.height = 5, 
                out.width = ".6\\linewidth", fig.align = "center",
-               message=FALSE)
+               message=FALSE, cache = TRUE)
 opts_knit$set(progress = FALSE, verbose = FALSE) 
 options(digits = 3, width = 70)
 library(latticeExtra)
@@ -444,28 +444,128 @@ Voici une liste de modèles incorporant un ou plusieurs effets aléatoires susce
 \bigskip
 Utilisation de la fonction \texttt{lme4::lmer}:
 <<echo=FALSE>>=
-lme.mod1 <- lmer(Reaction ~ Days + (1 | Subject), data=sleepstudy)
-lme.mod2 <- lmer(Reaction ~ Days + (Days | Subject), data=sleepstudy)
-lme.mod3 <- lmer(Reaction ~ Days + (1 | Subject) + (0 + Days | Subject), data=sleepstudy)
+m1 <- lmer(Reaction ~ Days + (1 | Subject), data=sleepstudy)
+m2 <- lmer(Reaction ~ Days + (Days | Subject), data=sleepstudy)
+m3 <- lmer(Reaction ~ Days + (1 | Subject) + (0 + Days | Subject), data=sleepstudy)
 @ 
 
 <<>>=
-anova(lme.mod1, lme.mod2, lme.mod3) 
+anova(m1, m2, m3)
 @ 
 \indexfoo{lmer}\indexfoo{anova}
 \end{frame}
 
 % ------------------------------------------------------------------- Slide --
 \begin{frame}[fragile]{Prédictions} 
-Dans un modèle à effets aléatoires, les coefficients de régression associés aux termes aléatoires ne sont plus des paramètres et ne peuvent être estimés comme dans le cas du modèle OLS. De plus, leur espérance mathématique vaut 0. 
+Dans un modèle à effets aléatoires, les coefficients de régression associés aux termes aléatoires (dont l'espérance mathématique vaut 0) ne sont plus des paramètres et ne peuvent être estimés comme dans le cas du modèle OLS.. 
 \medskip
 
 Cependant, on peut utiliser la distribution \emph{a posteriori} (approche bayésienne). En combinant les modes conditionnels des effets aléatoires et les paramètres estimés pour les effets fixes, on obtient les \textbf{modes conditionnels des coefficients intra-sujet}.
+\medskip
 
+On peut vérifier que les prédictions individuelles sont reliées, que le facteur sujet soit traité comme fixe ou aléatoire.
 
-
-  
+<<>>=
+m4 <- aov(Reaction ~ Days + Subject, data = sleepstudy)
+feff <- model.tables(m4, cterms="Subject")[[1]]$Subject
+as.numeric(unlist(ranef(m1)$Subject / feff)[1])
+@ 
+\indexfoo{aov}\indexfoo{model.tables}\indexfoo{unique}\indexfoo{as.numeric}\indexfoo{ranef}
 \end{frame}  
+
+% ------------------------------------------------------------------- Slide --
+\begin{frame}[fragile]{} 
+\bigskip
+
+\[
+ \tilde y_i= (\underbrace{\hat\beta_0}_{\text{\small Fixed}}+\underbrace{\phantom{{\hat\beta_0}}\kern-2.3ex\hat
+  u_{0i}}_{\text{\small Random}}) + (\hat\beta_1+\hat u_{1i})x 
+\]  
+
+\centerline{\includegraphics[width=.8\textwidth]{./figs/sleepstudy3.pdf}}
+
+\end{frame}
+
+% ------------------------------------------------------------------- Slide --
+\begin{frame}[fragile,fragile]{Autour du concept de shrinkage} 
+Les valeurs prédites à partir d'un modèle à effet aléatoire sont des estimations biaisées vers la tendance moyenne.
+\medskip
+
+Dans les cas les plus simples, le coefficient de shrinkage revient à
+\[
+ \tau = \frac{\sigma_u^2}{\sigma_u^2+\sigma_{\varepsilon}^2/n_i}, 
+\]
+où $n_i$ est la taille du $i$\ieme cluster. 
+\medskip
+
+Ici, $\tau=37.1^2/(37.1^2+31.0^2/10)=0.935$. Dans le cas où les mesures sont précises, lorsque les unités sont très différentes ou lorsque l'échantillon est grand il y aura généralement peu de shrinkage.
+\medskip
+  
+\end{frame}
+
+% ------------------------------------------------------------------- Slide --
+\begin{frame}[fragile]{}
+\bigskip\bigskip
+
+\centerline{\includegraphics[width=.8\textwidth]{./figs/sleepstudy4.pdf}}
+  
+\end{frame}
+
+% ------------------------------------------------------------------- Slide --
+\begin{frame}[fragile]{Prédicteurs continus et catégoriels}
+
+Blackmoor and Davis's data on exercise histories of 138 teenaged
+girls hospitalized for eating disorders and 98 control
+subjects. John Fox \citep{fox02}
+
+\centerline{\includegraphics[width=.7\textwidth]{./figs/blackmoor.pdf}}
+
+\end{frame}
+
+
+% ------------------------------------------------------------------- Slide --
+\begin{frame}[fragile]{Modélisation d'un terme d'interaction}
+Construction de \textbf{trois modèles emboîtés}:
+<<>>=
+data(Blackmore, package="car")
+lex <- log(Blackmore$exercise + 5/60, 2)
+m0 <- lme(lex ~ I(age-8)*group, 
+         random= ~ I(age-8) | subject, 
+         data=Blackmore)
+m1 <- update(m0, random= ~ 1 | subject)
+m2 <- update(m0, random= ~ I(age-8) - 1 | subject)
+@   
+\indexfoo{data}\indexfoo{log}\indexfoo{lme}\indexfoo{update}
+\end{frame}
+
+% ------------------------------------------------------------------- Slide --
+\begin{frame}[fragile]{}
+\bigskip
+
+<<>>=
+anova(m0, m1)
+anova(m0, m2)
+@ 
+\indexfoo{anova}  
+\end{frame}
+
+% ------------------------------------------------------------------- Slide --
+\begin{frame}[fragile]{}
+\bigskip
+
+<<>>=
+summary(m0)
+@ 
+\indexfoo{summary}
+\end{frame}
+
+% ------------------------------------------------------------------- Slide --
+\begin{frame}[fragile]{}
+\bigskip\bigskip
+
+\centerline{\includegraphics[width=.7\textwidth]{./figs/blackmoor2.pdf}}
+
+\end{frame}
 
 \section*{Références} 
 % ------------------------------------------------------------------- Slide --
