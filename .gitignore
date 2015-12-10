@@ -21,6 +21,8 @@ tex/
 *.awk
 vc
 slides/figs/
+slides/cache/
+slides/auto/
 
 # History files
 .Rhistory
