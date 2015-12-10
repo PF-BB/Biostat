@@ -1,0 +1,43 @@
+---
+title: "Script d’analyse des données birthwt"
+author: "Christophe Lalanne"
+date: "4 décembre 2015"
+output: html_document
+---
+
+## Chargement des données
+
+```{r, echo = FALSE}
+library(MASS)
+data(birthwt)
+```
+
+Dimension du data frame :
+
+```{r, echo = FALSE}
+dim(birthwt)
+```
+
+## Recodage de variables
+
+```{r}
+ethn <- c("white", "black", "other")
+birthwt$race <- factor(birthwt$race, levels = 1:3, 
+                       labels = ethn)
+table(birthwt$race)
+```
+
+
+## Graphiques
+
+Texte en *italique* et texte en **gras**
+
+Nombre d'observations : `r nrow(birthwt)`
+
+```{r}
+library(lattice)
+xyplot(bwt ~ age, data = birthwt, groups = race,
+       auto.key = TRUE)
+```
+
+
